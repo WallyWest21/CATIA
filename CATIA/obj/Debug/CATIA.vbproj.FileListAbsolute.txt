@@ -76,3 +76,20 @@ C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Int
 C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.VPMEditorContextIDL.dll
 C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATCompositesMat.dll
 C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.Office.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\CATIA.vbprojResolveAssemblyReference.cache
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.CATCompositesMat.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.CATStrSettingsTypeLib.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.CATTooling.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.DRAFTINGITF.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.HybridShapeTypeLib.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.INFITF.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.LAYOUT2DITF.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.MECMOD.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.NavigatorTypeLib.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.Office.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.PARTITF.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.PPR.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\Interop.ProductStructureTypeLib.dll
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\CATIA.vbproj.ResolveComReference.cache
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\CATIA.Resources.resources
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA\obj\Debug\CATIA.vbproj.GenerateResource.Cache

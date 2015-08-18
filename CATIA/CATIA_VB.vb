@@ -1,17 +1,18 @@
-﻿Imports DrawingDocument = DRAFTINGITF.IID_DraftingIDLItf
+﻿'Imports DrawingDocument = DRAFTINGITF.IID_DraftingIDLItf
 Imports DrawingSheets = DRAFTINGITF.DrawingSheets
 Imports DrawingSheet = DRAFTINGITF.DrawingSheet
 Imports DrawingViews = DRAFTINGITF.DrawingViews
 Imports DrawingView = DRAFTINGITF.DrawingView
 Imports DRAFTINGITF.IID_DraftingInterfaces
+Imports DRAFTINGITF
+Imports DRAFTINGITF.CatTextProperty
+Imports DRAFTINGITF.CatTablePosition
 
 Imports MECMOD
 Imports ProductStructureTypeLib
-Imports LAYOUT2DITF
+
 Imports INFITF
-Imports CATANNOTITF
-Imports CATANNOTITF.CatTextProperty
-Imports CATANNOTITF.CatTablePosition
+
 
 Imports Microsoft.Office.Interop.Excel
 Public Class Cl_CATIA
@@ -31,6 +32,17 @@ Public Class Cl_CATIA
     Public Class _3D
 
         Public Class Product
+            Public Class cl_PartsList
+                Public PartNo As String
+                Public Quantity As String
+                Public Nomenclature As String
+                Public ItemNo As String
+                Public Material As String
+                Public Class cl_Parent
+                    Public PartNo As String
+                    Public Nomenclature As String
+                End Class
+            End Class
             Function GetProductDocument() As ProductDocument
                 CATIA = GetCATIA()
                 Dim MyProductDocument As ProductDocument
@@ -44,103 +56,226 @@ Public Class Cl_CATIA
                 End If
                 GetProductDocument = MyProductDocument
             End Function
+            Function SelectSingle3DProduct() As Products
+                'Dim CATIA As Object,
+                Dim ActiveProductDocument As ProductDocument, ActiveProduct As Products
 
-            Sub Select3DProduct()
-
-                Dim CATIA As Object, ActiveProductDocument As ProductDocument, ActProd As Products
-
-                CATIA = GetCATIA()
+                'CATIA = GetCATIA()
                 ActiveProductDocument = GetProductDocument()
-
 
                 Dim What(0) As Object
                 What(0) = "Product"
 
-                Dim UserSel As Object
-                UserSel = CATIA.ActiveDocument.Selection
-                UserSel.Clear()
+                Dim SelectedProduct As SelectedElement
+                SelectedProduct = CATIA.ActiveDocument.Selection
+                SelectedProduct.Clear()
 
                 Dim e As String
-                e = UserSel.SelectElement3(What, "Select a Product or a Component", False, 2, False)
+                e = SelectedProduct.SelectElement3(What, "Select a Product or a Component", False, 2, False)
 
-                Dim SelectedElement As Long, ActiveProduct
+                ActiveProduct = SelectedProduct.Item(1).Value
+                SelectedProduct.Clear()
 
-                ActiveProduct = UserSel.Item(1).Value
-                UserSel.Clear()
+                Return ActiveProduct
+            End Function
 
-                ActiveProduct.ApplyWorkMode(DESIGN_MODE)
-
-                Dim DictStrChildren As Dictionary
-                DictStrChildren = CreateObject("Scripting.Dictionary")
-
-                Dim DictChildren As Dictionary
-                DictChildren = CreateObject("Scripting.Dictionary")
-
-                Dim ChildrenName As String
-
-                For i = 1 To ActiveProduct.Products.count
-                    On Error Resume Next
-
-                    ChildrenName = ActiveProduct.Products.Item(i).PartNumber
+            Function PartsList(ActiveProduct As Products) As List(Of cl_PartsList)
+                Dim testobject As String
+                Dim cl_PL As New cl_PartsList
+                If ActiveProduct.Count = 0 Then
+                    Exit Function
+                End If
 
 
-                    If ActiveProduct.Products.Item(i).ReferenceProduct.Name = Null Then
-                        MsgBox("Make sure that all your part are loaded", vbCritical)
-                        Exit Sub
-                    End If
+                'Try
+                '    Parallel.For(1, ActiveProduct.Count + 1, Sub(k)
 
-                    If Not DictStrChildren.exists(ChildrenName) Then 'And IsComponent(SelectedItem.Products.Item(i)) = False Then
+                '                                                 Dim oInst As INFITF.AnyObject
+                '                                                 oInst = ActiveProduct.Item(k)
+                '                                                 'ActiveProduct.Item(k).ApplyWorkMode(DESIGN_MODE)   'apply design mode
+                '                                                 'testobject = oInst.partnumber
+                '                                                 'If Validation.IsComponent(oInst) = False And oInstances.Item(k).Parent.Parent.PartNumber = oInProduct.partnumber Then
+                '                                                 'If Validation.IsComponent(oInst) = False And RealParent(oInst) = oInProduct.partnumber Then
 
-                        Qty = 1
-                        DictChildren.Add(Key:=ChildrenName, Item:=ActiveProduct.Products.Item(i))
-                        DictStrChildren.Add(Key:=ChildrenName, Item:=Qty)
+                '                                                 cl_PL.PartNo = oInst.Partnumber
+                '                                                 cl_PL.Nomenclature = oInst.Nomenclature
 
-                    ElseIf DictStrChildren.exists(ChildrenName) Then
-                        DictStrChildren.Item(ChildrenName) = DictStrChildren.Item(ChildrenName) + 1
-                    End If
+                '                                                 MsgBox(cl_PL.Nomenclature)
 
-                Next i
+                '                                                 PartsList.Add(cl_PL)
 
 
-                Dim BOM1 As New BOM
-                On Error Resume Next
-                Call BOM1.ClearFormat3D()
-                Range("Table3D").ClearContents()
-                Range("Table3D").ClearFormats()
-                Range("Table3D").WrapText = True
-                On Error GoTo 0
+                '                                                 'Realchildren3D.Add(oInst.partnumber)
+                '                                                 '    comp.Add(oInst.partnumber)
 
-                i = 0
+                '                                                 'End If
 
-                For Each Key In DictStrChildren
-                    ActiveSheet.Cells(i + 14, 1).Value = DictStrChildren(Key)
-                    ActiveSheet.Cells(i + 14, 2).Value = Key
-                    ActiveSheet.Cells(i + 14, 3).Value = DictChildren.Item(Key).DescriptionRef
-                    i = i + 1
+                '                                                 'If Validation.IsComponent(oInst) = True And RealParent(oInst) = oInProduct.partnumber Then
+                '                                                 '    Call WalkDownTree(oInst)
+                '                                                 '    test = RealParent(oInst)
+
+                '                                                 'End If
+
+                '                                             End Sub)
+
+                'Catch ex As Exception
+                '    MsgBox("You need a multicore computer")
+                'End Try
+
+                For Each Child In ActiveProduct
+                    cl_PL.PartNo = Child.Partnumber
+                    cl_PL.Nomenclature = Child.Nomenclature
+                    'cl_PL.cl_Parent.
+
+                    MsgBox(cl_PL.Nomenclature)
+
+                    PartsList.Add(cl_PL)
                 Next
 
-                ActiveSheet.Shapes.Range(Array("3DPartNo")).TextFrame2.TextRange.Characters.Text = ActiveProduct.Name
-                ActiveSheet.Shapes.Range(Array("3DDescription")).TextFrame2.TextRange.Characters.Text = ActiveProduct.DescriptionRef
 
-ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
-            End Sub
+                Return PartsList(ActiveProduct)
+            End Function
+            'Sub WalkDownTree(ByVal oInProduct As Object)
+            '    'As Product)
 
-            Function Select3DProducts() As List(Of Product)
-                Dim SelectedProducts As Product
+            '    Dim Validation As New Validation
+            '    Dim test As String
+            '    Dim testobject As String
+            '    Dim oInstances As Products
+            '    oInstances = oInProduct.Products
+
+            '    '-----No instances found then this is CATPart
+
+            '    If oInstances.Count = 0 Then
+
+            '        Exit Sub
+            '    End If
+
+
+            '    Try
+            '        Parallel.For(1, oInstances.Count + 1, Sub(k)
+
+            '                                                  Dim oInst As INFITF.AnyObject
+            '                                                  oInst = oInstances.Item(k)
+            '                                                  oInstances.Item(k).ApplyWorkMode(DESIGN_MODE)   'apply design mode
+            '                                                  testobject = oInst.partnumber
+            '                                                  'If Validation.IsComponent(oInst) = False And oInstances.Item(k).Parent.Parent.PartNumber = oInProduct.partnumber Then
+            '                                                  If Validation.IsComponent(oInst) = False And RealParent(oInst) = oInProduct.partnumber Then
+
+            '                                                      Children3D.Add(oInst)
+            '                                                      Realchildren3D.Add(oInst.partnumber)
+            '                                                      comp.Add(oInst.partnumber)
+
+            '                                                  End If
+
+            '                                                  If Validation.IsComponent(oInst) = True And RealParent(oInst) = oInProduct.partnumber Then
+            '                                                      Call WalkDownTree(oInst)
+            '                                                      test = RealParent(oInst)
+
+            '                                                  End If
+
+            '                                              End Sub)
+
+            '    Catch ex As Exception
+            '        MsgBox("You need a multicore computer")
+            '    End Try
+            '    'Realchildren3D.Add("klhkjhklhjkhkjlhkljl")
+
+
+            '    '    lst1.Add("New Item")
+
+            '    'ListBox1.ItemsSource = ChildrenList.
+            '    comp.Add("comparator")
+
+
+            'End Sub
+
+            'Sub Select3DProduct()
+
+            '    Dim CATIA As Object, ActiveProductDocument As ProductDocument, ActProd As Products
+
+            '    CATIA = GetCATIA()
+            '    ActiveProductDocument = GetProductDocument()
+
+
+            '    Dim What(0) As Object
+            '    What(0) = "Product"
+
+            '    Dim UserSel As Object
+            '    UserSel = CATIA.ActiveDocument.Selection
+            '    UserSel.Clear()
+
+            '    Dim e As String
+            '    e = UserSel.SelectElement3(What, "Select a Product or a Component", False, 2, False)
+
+            '    Dim SelectedElement As Long, ActiveProduct
+
+            '    ActiveProduct = UserSel.Item(1).Value
+            '    UserSel.Clear()
+
+            '    ActiveProduct.ApplyWorkMode(DESIGN_MODE)
+
+            '    Dim DictStrChildren As Dictionary
+            '    DictStrChildren = CreateObject("Scripting.Dictionary")
+
+            '    Dim DictChildren As Dictionary
+            '    DictChildren = CreateObject("Scripting.Dictionary")
+
+            '    Dim ChildrenName As String
+
+            '    For i = 1 To ActiveProduct.Products.count
+            '        On Error Resume Next
+
+            '        ChildrenName = ActiveProduct.Products.Item(i).PartNumber
+
+
+            '        If ActiveProduct.Products.Item(i).ReferenceProduct.Name = Null Then
+            '            MsgBox("Make sure that all your part are loaded", vbCritical)
+            '            Exit Sub
+            '        End If
+
+            '        If Not DictStrChildren.exists(ChildrenName) Then 'And IsComponent(SelectedItem.Products.Item(i)) = False Then
+
+            '            Qty = 1
+            '            DictChildren.Add(Key:=ChildrenName, Item:=ActiveProduct.Products.Item(i))
+            '            DictStrChildren.Add(Key:=ChildrenName, Item:=Qty)
+
+            '        ElseIf DictStrChildren.exists(ChildrenName) Then
+            '            DictStrChildren.Item(ChildrenName) = DictStrChildren.Item(ChildrenName) + 1
+            '        End If
+
+            '    Next i
+
+
+            '    Dim BOM1 As New BOM
+            '    On Error Resume Next
+            '    Call BOM1.ClearFormat3D()
+            '    Range("Table3D").ClearContents()
+            '    Range("Table3D").ClearFormats()
+            '    Range("Table3D").WrapText = True
+            '    On Error GoTo 0
+
+            '    i = 0
+
+            '    For Each Key In DictStrChildren
+            '        ActiveSheet.Cells(i + 14, 1).Value = DictStrChildren(Key)
+            '        ActiveSheet.Cells(i + 14, 2).Value = Key
+            '        ActiveSheet.Cells(i + 14, 3).Value = DictChildren.Item(Key).DescriptionRef
+            '        i = i + 1
+            '    Next
+
+            '    ActiveSheet.Shapes.Range(Array("3DPartNo")).TextFrame2.TextRange.Characters.Text = ActiveProduct.Name
+            '    ActiveSheet.Shapes.Range(Array("3DDescription")).TextFrame2.TextRange.Characters.Text = ActiveProduct.DescriptionRef
+
+            '    ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
+            'End Sub
+            Function SelectMultiple3DProducts() As List(Of Product)
+                Dim SelectedProducts As Products
+
                 Return SelectedProducts
-
             End Function
-
-            Function strExportChildren() As Collection
-                Dim Children As Collection
-
-                Return Children
-            End Function
-
             Sub InsertOption()
-
             End Sub
-
         End Class
         Public Class Part
             Function GetPartDocument() As PartDocument
@@ -157,24 +292,7 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
                 GetPartDocument = MyPartDocument
             End Function
 
-            Public Class UDF
-                Sub Panel()
 
-                End Sub
-                Sub Drawer()
-
-                End Sub
-
-                Sub BondedStructure()
-
-                End Sub
-
-                Sub DecoPanel()
-
-                End Sub
-
-                
-            End Class
             Public Class PartMetaData
                 Dim PartNo, Nomenclature, Description, Parent, JobNo, RT As String
             End Class
@@ -216,6 +334,23 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
     End Class
     Public Class Drawing
 
+        Public Class cl_PartsList
+            Public PartNo As String
+            Public Quantity As String
+            Public Nomenclature As String
+            Public ItemNo As String
+            Public Material As String
+            Public Class cl_Parent
+                Public PartNo As String
+                Public Nomenclature As String
+            End Class
+        End Class
+
+        Function PartsList() As List(Of cl_PartsList)
+            Return PartsList
+        End Function
+
+
         Function GetDrawingDocument() As DrawingDocument
             CATIA = GetCATIA()
             Dim MyDrawingDocument As DrawingDocument
@@ -230,31 +365,26 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
         End Function
 
         Function Select2DTable() As DrawingTable
-            Dim CATIA As Object, ActiveDrawingDocument As DrawingDocument, UserSel As SelectedElement, ActTable As DrawingTable
+            Dim CATIA As Object, ActiveDrawingDocument As DrawingDocument, ActiveTable As DrawingTable
             Dim e As String
             Dim What(0) As Object
-
+            Dim SelectedTable As SelectedElement
             CATIA = GetCATIA()
             ActiveDrawingDocument = GetDrawingDocument()
 
             What(0) = "DrawingTable"
 
-            UserSel2D = CATIA.ActiveDocument.Selection
-            UserSel2D.Clear()
+            SelectedTable = CATIA.ActiveDocument.Selection
+            SelectedTable.Clear()
 
-            e = UserSel2D.SelectElement3(What, "Select a DrawingTable", True, 2, False)
+            e = SelectedTable.SelectElement3(What, "Select a DrawingTable", True, 2, False)
 
-            ActTable = UserSel2D.Item(1).Value
+            ActiveTable = SelectedTable.Item(1).Value
 
-            UserSel2D.Clear()
-            Select2DTable = ActTable
-
-        End Function
-
-        Function ConvertTableToCollection() As Collection
+            SelectedTable.Clear()
+            Select2DTable = ActiveTable
 
         End Function
-
         Sub Clean2DTable()
             Dim Table2D As DrawingTable
             Table2D = Select2DTable()
@@ -458,62 +588,62 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
 
         Function GetNotes(ByRef oDrawingText As DrawingText) As Collection
 
-            Dim FlagNotes() As String
-            Dim FlagnotesCollection As New Collection
+            'Dim FlagNotes() As String
+            'Dim FlagnotesCollection As New Collection
 
-            Dim Notes() As String
-            Dim NotesCollection As New Collection
+            'Dim Notes() As String
+            'Dim NotesCollection As New Collection
 
-            Dim k As Integer
-            Dim j As Integer
+            'Dim k As Integer
+            'Dim j As Integer
 
-            Dim Delimiter As String
-            Delimiter = Chr(10) '+ Chr(32)
+            'Dim Delimiter As String
+            'Delimiter = Chr(10) '+ Chr(32)
 
-            Dim StartNote As New Collection
-            Dim StartFlagnote As New Collection
-            Dim GeneralNote As New Collection
+            'Dim StartNote As New Collection
+            'Dim StartFlagnote As New Collection
+            'Dim GeneralNote As New Collection
 
-            Dim TempNote As String
-            Dim TempFlagnote As String
+            'Dim TempNote As String
+            'Dim TempFlagnote As String
 
-            Notes = Split(oDrawingText.Text, Delimiter)
+            'Notes = Split(oDrawingText.Text, Delimiter)
 
-            For j = LBound(Notes) To UBound(Notes)
-                If Trim(Notes(j)) = vbNullString Then
-                    StartNote.Add(j)
-                End If
-            Next j
-            StartNote.Add(j)
+            'For j = LBound(Notes) To UBound(Notes)
+            '    If Trim(Notes(j)) = vbNullString Then
+            '        StartNote.Add(j)
+            '    End If
+            'Next j
+            'StartNote.Add(j)
 
-            TempNote = vbNullString
+            'TempNote = vbNullString
 
-            For k = 2 To StartNote.count
-                For j = StartNote(k - 1) To StartNote(k) - 1
-                    If Trim(Notes(j)) <> "" Then
-                        TempNote = TempNote + Space(1) + Trim(Notes(j))
-                    End If
-                Next
+            'For k = 2 To StartNote.count
+            '    For j = StartNote(k - 1) To StartNote(k) - 1
+            '        If Trim(Notes(j)) <> "" Then
+            '            TempNote = TempNote + Space(1) + Trim(Notes(j))
+            '        End If
+            '    Next
 
-                If Trim(TempNote) <> "" Then
-                    NotesCollection.Add(TempNote)
-                End If
-                TempNote = vbNullString
-            Next k
+            '    If Trim(TempNote) <> "" Then
+            '        NotesCollection.Add(TempNote)
+            '    End If
+            '    TempNote = vbNullString
+            'Next k
 
-            'Last value
-
-
+            ''Last value
 
 
 
 
-            'For Each Note In NotesCollection
-            'Cells(i, 26) = Note
-            'i = i + 1
-            'Next
 
-            GetNotes = NotesCollection
+
+            ''For Each Note In NotesCollection
+            ''Cells(i, 26) = Note
+            ''i = i + 1
+            ''Next
+
+            'GetNotes = NotesCollection
         End Function
 
         Function GetPartAndDescFromCallout(Callout As String, Table2D As DrawingTable) As String
@@ -688,7 +818,7 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
 
             On Error Resume Next
             'Set oDrawingDocument = CATIA.ActiveDocument
-            ActiveDwgDocument = CATIA.ActiveDocument
+            ActiveDrawingDocument = CATIA.ActiveDocument
             If Err.Number <> 0 Then
                 MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "in the Active session", vbCritical, "Open a Drawing")
                 Exit Function
@@ -701,19 +831,19 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
             What(2) = "DrawingText"
 
             Dim UserSel As SelectedElement
-            UserSel2D = CATIA.ActiveDocument.Selection
-            UserSel2D.Clear()
+            UserSel = CATIA.ActiveDocument.Selection
+            UserSel.Clear()
 
 
             Dim e 'As String
-            e = UserSel2D.SelectElement3(What, "Select a Drawing Element", True, 2, False)
+            e = UserSel.SelectElement3(What, "Select a Drawing Element", True, 2, False)
 
             Dim DrawingObject As Object
-            DrawingObject = UserSel2D.Item(1).Value
+            DrawingObject = UserSel.Item(1).Value
 
             'DrawingObject.X = 0 + 28
             'DrawingObject.Y = 0 + 156
-            UserSel2D.Clear()
+            UserSel.Clear()
 
 
             Dim DrawingZoneLetter(6, 2) As String
@@ -782,6 +912,7 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
                                 '                        Dim SplittedPartNo() As String
                                 '
                                 Dim Callout
+                                Dim Qty As Integer
                                 For Each Callout In oDrawingView.Texts
                                     If Callout.FrameType = 53 And IsNumeric(Trim(Callout.Text)) = True Then  'Balloon Frame
 
@@ -818,124 +949,104 @@ ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
             Next oDrawingSheet
 
 
-            i = 0
+            'i = 0
 
-            Dim XLTable3D As Range
-            XLTable3D = ActiveSheet.ListObjects("Table3D").DataBodyRange
+            'Dim XLTable3D As Range
+            'XLTable3D = ActiveSheet.ListObjects("Table3D").DataBodyRange
 
 
-            On Error Resume Next
-            XLTable3D.Delete()
-            On Error GoTo 0
+            'On Error Resume Next
+            'XLTable3D.Delete()
+            'On Error GoTo 0
 
-            For Each Key In CalloutsDict
-                Dim ItemNo As String, QtyReqd As String, PartNo As String, Nomenclature As String
-                QtyReqd = CalloutsDict(Key)
-                ItemNo = Key
-                PartNo = D2.GetPartAndDescFromCallout(ItemNo, Table2D)
-                ActiveSheet.Cells(i + 14, 1).Value = QtyReqd
-                'ActiveSheet.Cells(i + 14, 2).Value = ItemNo
-                ActiveSheet.Cells(i + 14, 2).Value = PartNo
-                i = i + 1
-            Next
-            Call Export2DTable(Table2D, ActiveSheet.ListObjects("Table2D"))
+            'For Each Key In CalloutsDict
+            '    Dim ItemNo As String, QtyReqd As String, PartNo As String, Nomenclature As String
+            '    QtyReqd = CalloutsDict(Key)
+            '    ItemNo = Key
+            '    PartNo = D2.GetPartAndDescFromCallout(ItemNo, Table2D)
+            '    ActiveSheet.Cells(i + 14, 1).Value = QtyReqd
+            '    'ActiveSheet.Cells(i + 14, 2).Value = ItemNo
+            '    ActiveSheet.Cells(i + 14, 2).Value = PartNo
+            '    i = i + 1
+            'Next
+            'Call Export2DTable(Table2D, ActiveSheet.ListObjects("Table2D"))
         End Sub
 
-        Sub Export2DTable(Table2D As DrawingTable, XLTable As ListObject)
-            ActiveSheet.Cells(10, 8).Value = Null
-            ActiveSheet.Cells(11, 7).Value = Null
+        '        Sub Export2DTable(Table2D As DrawingTable, XLTable As ListObject)
+        '            ActiveSheet.Cells(10, 8).Value = Null
+        '            ActiveSheet.Cells(11, 7).Value = Null
 
-            Dim CATIA As Object, oDrawingDocument As DrawingDocument
-            CATIA = GetCATIA()
-            oDrawingDocument = GetCATIADrawingDocument
-
-
-            Dim oRow As Range
-            Dim i As Integer
-            i = 1
-
-            On Error Resume Next
-            XLTable.DataBodyRange.Delete()
-            XLTable.DataBodyRange.ClearContents()
-            XLTable.DataBodyRange.ClearFormats()
-            XLTable.DataBodyRange.WrapText = True
-            On Error GoTo 0
-
-            Application.ScreenUpdating = False
-
-            Dim PartNumber As String, Qty As String, Nomenclature As String, ItemNo As String, Material As String
-
-            For i = 1 To Table2D.NumberOfRows Step 1
-
-                XLTable.ListRows.Add()
-                Dim TotalRows As Integer
-
-                TotalRows = XLTable.ListRows.Count
-
-                PartNumber = Table2D.GetCellString(i, 4)
-                Qty = Table2D.GetCellString(i, 3)
-                Nomenclature = Table2D.GetCellString(i, 2)
-                ItemNo = Table2D.GetCellString(i, 1)
-
-                On Error Resume Next
-                Material = Table2D.GetCellString(i, 5)
-                On Error GoTo 0
-
-                'XLTable.DataBodyRange.Rows.NumberFormat = "@"
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(1).Value = Qty
-
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(2).NumberFormat = "@"
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(2).Value = PartNumber
-
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(3).NumberFormat = "@"
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(3).Value2 = Nomenclature
-
-                On Error Resume Next
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(4).NumberFormat = "@"
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(4).Value = Material
-                On Error GoTo 0
-
-                XLTable.DataBodyRange.Rows(TotalRows).Columns(5).Value = ItemNo
-
-                '    i = i + 1
+        '            Dim CATIA As Object, oDrawingDocument As DrawingDocument
+        '            CATIA = GetCATIA()
+        '            oDrawingDocument = GetCATIADrawingDocument
 
 
-            Next
+        '            Dim oRow As Range
+        '            Dim i As Integer
+        '            i = 1
 
-            On Error Resume Next
-            XLTable.DataBodyRange.ClearFormats()
-            XLTable.DataBodyRange.WrapText = True
-            On Error GoTo 0
-            'ActiveSheet.Cells(10, 8).Value = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
-            'ActiveSheet.Cells(11, 7).Value = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
-            'ActiveSheet.Cells(12, 8).Value = Date & " " & Time()
-ActiveSheet.Shapes.Range(Array("TimeStamp2D")).TextFrame2.TextRange.Characters.Text = Date & " " & Time()
+        '            On Error Resume Next
+        '            XLTable.DataBodyRange.Delete()
+        '            XLTable.DataBodyRange.ClearContents()
+        '            XLTable.DataBodyRange.ClearFormats()
+        '            XLTable.DataBodyRange.WrapText = True
+        '            On Error GoTo 0
 
-            ActiveSheet.Shapes.Range(Array("2DPartNo")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
-            ActiveSheet.Shapes.Range(Array("2DDescription")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
-        End Sub
+        '            Application.ScreenUpdating = False
 
-        Function GetPartAndDescFromCallout(Callout As String, Table2D As DrawingTable) As String
-            'Dim PartAndDescFromCallout As New Collection
-            'Set GetPartAndDescFromCallout = PartAndDescFromCallout
+        '            Dim PartNumber As String, Qty As String, Nomenclature As String, ItemNo As String, Material As String
 
-            For i = 1 To Table2D.NumberOfRows
+        '            For i = 1 To Table2D.NumberOfRows Step 1
 
-                If Trim(UCase(Table2D.GetCellString(i, 4))) = Trim(UCase(Callout)) Or Trim(UCase(Table2D.GetCellString(i, 1))) = Trim(UCase(Callout)) Then
-                    GetPartAndDescFromCallout = UCase(Table2D.GetCellString(i, 4))
-                End If
+        '                XLTable.ListRows.Add()
+        '                Dim TotalRows As Integer
 
-                If InStr(Trim(UCase(Callout)), " MULT") > 0 Then
-                    SplittedPartNo = Split(UCase(Callout), " MULT")
+        '                TotalRows = XLTable.ListRows.Count
 
-                    If Trim(UCase(Table2D.GetCellString(i, 4))) = Trim(UCase(SplittedPartNo(0))) Then
-                        GetPartAndDescFromCallout = UCase(Table2D.GetCellString(i, 4))
-                    End If
-                End If
-            Next i
-        End Function
+        '                PartNumber = Table2D.GetCellString(i, 4)
+        '                Qty = Table2D.GetCellString(i, 3)
+        '                Nomenclature = Table2D.GetCellString(i, 2)
+        '                ItemNo = Table2D.GetCellString(i, 1)
 
-        Sub XLTo2D(Table As ListObject, QtyCol As Integer, PartNoCol As Integer, NomenclatureCol As Integer, Optional MatSpecCol As Integer, Optional ItemNoCol As Integer)
+        '                On Error Resume Next
+        '                Material = Table2D.GetCellString(i, 5)
+        '                On Error GoTo 0
+
+        '                'XLTable.DataBodyRange.Rows.NumberFormat = "@"
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(1).Value = Qty
+
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(2).NumberFormat = "@"
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(2).Value = PartNumber
+
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(3).NumberFormat = "@"
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(3).Value2 = Nomenclature
+
+        '                On Error Resume Next
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(4).NumberFormat = "@"
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(4).Value = Material
+        '                On Error GoTo 0
+
+        '                XLTable.DataBodyRange.Rows(TotalRows).Columns(5).Value = ItemNo
+
+        '                '    i = i + 1
+
+
+        '            Next
+
+        '            On Error Resume Next
+        '            XLTable.DataBodyRange.ClearFormats()
+        '            XLTable.DataBodyRange.WrapText = True
+        '            On Error GoTo 0
+        '            'ActiveSheet.Cells(10, 8).Value = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
+        '            'ActiveSheet.Cells(11, 7).Value = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
+        '            'ActiveSheet.Cells(12, 8).Value = Date & " " & Time()
+        'ActiveSheet.Shapes.Range(Array("TimeStamp2D")).TextFrame2.TextRange.Characters.Text = Date & " " & Time()
+
+        '            ActiveSheet.Shapes.Range(Array("2DPartNo")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
+        '            ActiveSheet.Shapes.Range(Array("2DDescription")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
+        '        End Sub
+
+        Sub XLTo2D(Table As ListObject, QtyCol As Integer, PartNoCol As Integer, NomenclatureCol As Integer, MatSpecCol As Integer, ItemNoCol As Integer)
 
             Dim CATIA As Object
 
@@ -1030,5 +1141,37 @@ ActiveSheet.Shapes.Range(Array("TimeStamp2D")).TextFrame2.TextRange.Characters.T
 
         End Sub
     End Class
+    Public Class UDF
+        Public Class Panel
 
+        End Class
+        Public Class Drawer
+
+        End Class
+
+        Public Class BondedStructure
+        End Class
+
+        Public Class DecoPanel
+
+        End Class
+        Public Class Monument
+
+        End Class
+
+        Public Class Hardware
+            Public Class Fastener
+
+            End Class
+
+            Public Class Insert
+
+            End Class
+
+            Public Class Washer
+
+            End Class
+        End Class
+
+    End Class
 End Class

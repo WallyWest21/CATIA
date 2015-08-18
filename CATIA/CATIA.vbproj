@@ -78,6 +78,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="PartsList.vb" />
     <Compile Include="XL_VB.vb" />
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +110,15 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+    <COMReference Include="CATAssemblyTypeLib">
+      <Guid>{8D5B5690-9551-11D4-9349-006094EB72E6}</Guid>
+      <VersionMajor>0</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
     <COMReference Include="CATCompositesMat">
       <Guid>{437A1314-9209-41FA-B546-9214651847FA}</Guid>
       <VersionMajor>0</VersionMajor>
@@ -118,8 +128,8 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="CATStrSettingsTypeLib">
-      <Guid>{8AD08B63-AF05-4E2D-A550-2C53FC1EE4D2}</Guid>
+    <COMReference Include="CATInstantCollabItf">
+      <Guid>{96C13590-CBF9-4F0F-9401-973103C58E12}</Guid>
       <VersionMajor>0</VersionMajor>
       <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>
@@ -127,8 +137,8 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="CATTooling">
-      <Guid>{B46B5073-7D07-11D6-9F4E-0002B31E9EB0}</Guid>
+    <COMReference Include="CATSmarTeamInteg">
+      <Guid>{37EB6106-2CBA-4A69-B0F7-185EDF69CFC7}</Guid>
       <VersionMajor>0</VersionMajor>
       <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>
@@ -163,8 +173,8 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="LAYOUT2DITF">
-      <Guid>{4480F2EC-29DE-443A-A706-3587C3758350}</Guid>
+    <COMReference Include="KnowledgewareTypeLib">
+      <Guid>{0770412C-722E-11D2-8378-0060941974FF}</Guid>
       <VersionMajor>0</VersionMajor>
       <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>
@@ -199,15 +209,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-    <COMReference Include="NavigatorTypeLib">
-      <Guid>{E6BCB304-3260-11D4-9465-006094EB3826}</Guid>
-      <VersionMajor>0</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
     <COMReference Include="Office">
       <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
       <VersionMajor>2</VersionMajor>
@@ -219,15 +220,6 @@
     </COMReference>
     <COMReference Include="PARTITF">
       <Guid>{D8431606-E4B5-11D1-A5D3-00A0C95752ED}</Guid>
-      <VersionMajor>0</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="PPR">
-      <Guid>{D174F8A2-C2B4-11D3-AB2C-0008C7193C4E}</Guid>
       <VersionMajor>0</VersionMajor>
       <VersionMinor>0</VersionMinor>
       <Lcid>0</Lcid>

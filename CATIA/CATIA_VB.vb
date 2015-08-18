@@ -1,18 +1,20 @@
 ﻿'Imports DrawingDocument = DRAFTINGITF.IID_DraftingIDLItf
 Imports DrawingSheets = DRAFTINGITF.DrawingSheets
 Imports DrawingSheet = DRAFTINGITF.DrawingSheet
+
 Imports DrawingViews = DRAFTINGITF.DrawingViews
 Imports DrawingView = DRAFTINGITF.DrawingView
+
 Imports DRAFTINGITF.IID_DraftingInterfaces
 Imports DRAFTINGITF
 Imports DRAFTINGITF.CatTextProperty
 Imports DRAFTINGITF.CatTablePosition
 
 Imports MECMOD
+
 Imports ProductStructureTypeLib
 
 Imports INFITF
-
 
 Imports Microsoft.Office.Interop.Excel
 Public Class Cl_CATIA
@@ -30,7 +32,6 @@ Public Class Cl_CATIA
         GetCATIA = CATIA
     End Function
     Public Class _3D
-
         Public Class Product
             Public Class cl_PartsList
                 Public PartNo As String
@@ -274,8 +275,6 @@ Public Class Cl_CATIA
 
                 Return SelectedProducts
             End Function
-            Sub InsertOption()
-            End Sub
         End Class
         Public Class Part
             Function GetPartDocument() As PartDocument

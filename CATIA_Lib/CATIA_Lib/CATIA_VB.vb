@@ -1,5 +1,4 @@
-﻿'Imports DrawingDocument = DRAFTINGITF.IID_DraftingIDLItf
-Imports DrawingSheets = DRAFTINGITF.DrawingSheets
+﻿Imports DrawingSheets = DRAFTINGITF.DrawingSheets
 Imports DrawingSheet = DRAFTINGITF.DrawingSheet
 
 Imports DrawingViews = DRAFTINGITF.DrawingViews
@@ -15,31 +14,29 @@ Imports MECMOD
 Imports ProductStructureTypeLib
 
 Imports INFITF
-
-Imports Microsoft.Office.Interop.Excel
 Public Class Cl_CATIA
-    Shared CATIA As Object
+    Shared oCATIA As Object
     Shared Function GetCATIA() As Object
 
-        CATIA = GetObject(, "CATIA.Application")
-        If CATIA Is Nothing Or Err.Number <> 0 Then
+        oCATIA = GetObject(, "CATIA.Application")
+        If oCATIA Is Nothing Or Err.Number <> 0 Then
             MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
             Environment.Exit(0)
             '       Set CATIA = CreateObject("CATIA.Application")
             '       CATIA.Visible = True
         End If
 
-        GetCATIA = CATIA
+        GetCATIA = oCATIA
     End Function
     Public Class _3D
         Public Class Product
             Public Part As String
             Function GetProductDocument() As ProductDocument
-                CATIA = GetCATIA()
+                oCATIA = GetCATIA()
                 Dim MyProductDocument As ProductDocument
 
                 On Error Resume Next
-                MyProductDocument = CATIA.ActiveDocument
+                MyProductDocument = oCATIA.ActiveDocument
                 If MyProductDocument Is Nothing Or Err.Number <> 0 Then
                     ' MsgBox "No CATIA Active Document found "
                     MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Product" & vbCrLf & "in the Active session", vbCritical, "Open a Product")
@@ -57,7 +54,7 @@ Public Class Cl_CATIA
                 What(0) = "Product"
 
                 Dim SelectedProduct As SelectedElement
-                SelectedProduct = CATIA.ActiveDocument.Selection
+                SelectedProduct = oCATIA.ActiveDocument.Selection
                 SelectedProduct.Clear()
 
                 Dim e As String
@@ -323,7 +320,7 @@ Public Class Cl_CATIA
                 What(0) = "Product"
 
                 Dim SelectedProducts As SelectedElement
-                SelectedProducts = CATIA.ActiveDocument.Selection
+                SelectedProducts = oCATIA.ActiveDocument.Selection
                 SelectedProducts.Clear()
 
                 Dim e As String
@@ -352,11 +349,11 @@ Public Class Cl_CATIA
         End Class
         Public Class Part
             Function GetPartDocument() As PartDocument
-                CATIA = GetCATIA()
+                oCATIA = GetCATIA()
                 Dim MyPartDocument As PartDocument
 
                 On Error Resume Next
-                MyPartDocument = CATIA.ActiveDocument
+                MyPartDocument = oCATIA.ActiveDocument
                 If MyPartDocument Is Nothing Or Err.Number <> 0 Then
                     MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Product" & vbCrLf & "in the Active session", vbCritical, "Open a Product")
                     Environment.Exit(0)
@@ -364,8 +361,6 @@ Public Class Cl_CATIA
 
                 GetPartDocument = MyPartDocument
             End Function
-
-
             Public Class PartMetaData
                 Dim PartNo, Nomenclature, Description, Parent, JobNo, RT As String
             End Class
@@ -425,11 +420,11 @@ Public Class Cl_CATIA
 
 
         Function GetDrawingDocument() As DrawingDocument
-            CATIA = GetCATIA()
+            oCATIA = GetCATIA()
             Dim MyDrawingDocument As DrawingDocument
 
             On Error Resume Next
-            MyDrawingDocument = CATIA.ActiveDocument
+            MyDrawingDocument = oCATIA.ActiveDocument
             If MyDrawingDocument Is Nothing Or Err.Number <> 0 Then
                 MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "in the Active session", vbCritical, "Open a Drawing")
                 Environment.Exit(0)
@@ -472,170 +467,6 @@ Public Class Cl_CATIA
                 End If
             Next i
         End Sub
-
-        Sub Export2DTable(Table2D As DrawingTable, XLTable As ListObject)
-            '            ActiveSheet.Cells(10, 8).Value = Null
-            '            ActiveSheet.Cells(11, 7).Value = Null
-
-            '            Dim CATIA As Object, oDrawingDocument As DrawingDocument
-            '            CATIA = GetCATIA
-            '            oDrawingDocument = GetCATIADrawingDocument
-
-
-            '            Dim oRow As Range
-            '            Dim i As Integer
-            '            i = 1
-
-            '            On Error Resume Next
-            '            XLTable.DataBodyRange.Delete()
-            '            XLTable.DataBodyRange.ClearContents()
-            '            XLTable.DataBodyRange.ClearFormats()
-            '            XLTable.DataBodyRange.WrapText = True
-            '            On Error GoTo 0
-
-            '            Application.ScreenUpdating = False
-
-            '            Dim PartNumber As String, Qty As String, Nomenclature As String, ItemNo As String, Material As String
-
-            '            For i = 1 To Table2D.NumberOfRows Step 1
-
-            '                XLTable.ListRows.Add()
-            '                Dim TotalRows As Integer
-
-            '                TotalRows = XLTable.ListRows.count
-
-            '                PartNumber = Table2D.GetCellString(i, 4)
-            '                Qty = Table2D.GetCellString(i, 3)
-            '                Nomenclature = Table2D.GetCellString(i, 2)
-            '                ItemNo = Table2D.GetCellString(i, 1)
-
-            '                On Error Resume Next
-            '                Material = Table2D.GetCellString(i, 5)
-            '                On Error GoTo 0
-
-            '                'XLTable.DataBodyRange.Rows.NumberFormat = "@"
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(1).Value = Qty
-
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(2).NumberFormat = "@"
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(2).Value = PartNumber
-
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(3).NumberFormat = "@"
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(3).Value2 = Nomenclature
-
-            '                On Error Resume Next
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(4).NumberFormat = "@"
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(4).Value = Material
-            '                On Error GoTo 0
-
-            '                XLTable.DataBodyRange.Rows(TotalRows).Columns(5).Value = ItemNo
-
-            '                '    i = i + 1
-
-
-            '            Next
-
-            '            On Error Resume Next
-            '            XLTable.DataBodyRange.ClearFormats()
-            '            XLTable.DataBodyRange.WrapText = True
-            '            On Error GoTo 0
-            '            'ActiveSheet.Cells(10, 8).Value = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
-            '            'ActiveSheet.Cells(11, 7).Value = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
-            'ActiveSheet.Cells(12, 8).Value = Date & " " & Time()
-
-            '            ActiveSheet.Shapes.Range(Array("2DPartNo")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
-            '            ActiveSheet.Shapes.Range(Array("2DDescription")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
-            '        End Sub
-
-            '        Sub XLTo2D(Table As ListObject, QtyCol As Integer, PartNoCol As Integer, NomenclatureCol As Integer, Optional MatSpecCol As Integer, Optional ItemNoCol As Integer)
-
-            '            Dim CATIA As Object
-            '            CATIA = GetObject(, "CATIA.Application")
-
-            '            Dim oDrawingDocument As DrawingDocument
-            '            'Set oDrawingDocument = CATIA.ActiveDocument
-
-            '            On Error Resume Next
-            '            oDrawingDocument = CATIA.ActiveDocument
-
-            '            If Err.Number <> 0 Then
-            '                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "in the Active session", vbCritical, "Open a Drawing")
-            '                Exit Sub
-            '            End If
-
-
-            '            oDrwSheets = oDrawingDocument.Sheets
-            '            oDrwSheet = oDrwSheets.ActiveSheet
-            '            oDrwView = oDrwSheet.Views.ActiveView
-            '            'oDrView.Select
-
-            '            'Retrieve the view's tables collection
-            '            Dim oDrwTables As DrawingTables
-            '            oDrwTables = oDrwView.Tables
-
-            '            ' Table.Range.AutoFilter Field:=2, Criteria1:=RGB(255, 255, 255), Operator:=xlFilterNoFill
-
-            '            Dim TableCount As Integer
-
-            '            Dim oRow As Range                           'See if there's parts that needs to be omitted
-            '            For Each oRow In Table.DataBodyRange.Rows
-            '                If oRow.Columns(2).Interior.Color <> 15773696 Then
-            '                    TableCount = TableCount + 1
-            '                End If
-            '            Next oRow
-
-            '            ' Create a new drawing table
-            '            Dim oDrwTable As DrawingTable
-            '            oDrwTable = oDrwTables.Add(896.650497436523, 126.999582529068, TableCount, 6, 5, 20)  ' double  iPositionX,double  iPositionY, long  iNumberOfRow, long  iNumberOfColumn, double  iRowHeight, double  iColumnWidth)
-
-            '            ' Set the drawing table's name
-            '            oDrwTable.Name = "Parts List"
-
-            '            'Set the column sizes
-            '            oDrwTable.SetColumnSize(1, 15.24)
-            '            oDrwTable.SetColumnSize(2, 127)
-            '            oDrwTable.SetColumnSize(3, 15.24)
-            '            oDrwTable.SetColumnSize(4, 50.8)
-            '            oDrwTable.SetColumnSize(5, 55.88)
-            '            oDrwTable.SetColumnSize(6, 15.24)
-            '            oDrwTable.AnchorPoint = CatTableBottomLeft
-
-            '            Dim i As Integer
-            '            i = 1
-
-
-            '            Dim TotalRows As Integer, RowNbr As Integer
-            '            'Totalrows = Table.Rows.count
-
-
-            '            For Each oRow In Table.DataBodyRange.Rows
-
-            '                If oRow.Columns(2).Interior.Color <> 15773696 Then
-
-            '                    Dim ItemNo As String
-            '                    ItemNo = i
-
-            '        oDrwTable.SetCellString (i), 4, oRow.Columns(2).Value   'Parts
-            '        oDrwTable.SetCellString (i), 3, oRow.Columns(1).Value   'Qty
-            '        oDrwTable.SetCellString (i), 2, oRow.Columns(3).Value   'Nomenclature
-
-            '                    If ItemNoCol = 0 Then
-            '                        oDrwTable.SetCellString(i, 1, oDrwTable.NumberOfRows + 1 - ItemNo) 'ItemNo
-            '                    Else
-            '                        oDrwTable.SetCellString(i, 1, oRow.Columns(ItemNoCol).Value)
-            '                    End If
-
-            '                    If MatSpecCol <> 0 Then                                               'MatSpec
-            '                        oDrwTable.SetCellString(i, 5, oRow.Columns(MatSpecCol).Value)
-            '                    End If
-
-            '        oDrwTable.SetCellAlignment (i), 2, CatTableMiddleLeft
-
-            '                    i = i + 1
-            '                End If
-            '            Next oRow
-
-        End Sub
-
         Sub DrwFlagNote(ByRef oDrawingText As DrawingText)
 
             Dim SplitoDrwTxt() As String
@@ -821,65 +652,65 @@ Public Class Cl_CATIA
 
         End Sub
 
-        Sub AddRevisionBalloon(TableNotes As ListObject)
+        'Sub AddRevisionBalloon(TableNotes As ListObject)
 
-            Dim CATIA As Object
-            CATIA = GetObject(, "CATIA.Application")
+        '    Dim CATIA As Object
+        '    CATIA = GetObject(, "CATIA.Application")
 
-            Dim oDrawingDocuments As Documents
-            oDrawingDocuments = CATIA.Documents
+        '    Dim oDrawingDocuments As Documents
+        '    oDrawingDocuments = CATIA.Documents
 
-            Dim oDrawingDocument As DrawingDocument
-            oDrawingDocument = CATIA.ActiveDocument
+        '    Dim oDrawingDocument As DrawingDocument
+        '    oDrawingDocument = CATIA.ActiveDocument
 
 
-            Dim oDrawingSheets As DrawingSheets
-            oDrawingSheets = oDrawingDocument.Sheets
+        '    Dim oDrawingSheets As DrawingSheets
+        '    oDrawingSheets = oDrawingDocument.Sheets
 
-            Dim oDrawingSheet As DrawingSheet
-            oDrawingSheet = oDrawingSheets.ActiveSheet
+        '    Dim oDrawingSheet As DrawingSheet
+        '    oDrawingSheet = oDrawingSheets.ActiveSheet
 
-            Dim oDrawingViews As DrawingViews
-            oDrawingViews = oDrawingSheet.Views
+        '    Dim oDrawingViews As DrawingViews
+        '    oDrawingViews = oDrawingSheet.Views
 
-            oDrawingViews.Add("Notes")
+        '    oDrawingViews.Add("Notes")
 
-            Dim oDrawingView As DrawingView
-            oDrawingView = oDrawingViews.Item("Notes")
+        '    Dim oDrawingView As DrawingView
+        '    oDrawingView = oDrawingViews.Item("Notes")
 
-            Dim oDrawingText As DrawingText
-            Dim Y As Integer, NoteCntr As Integer, Note As Range
+        '    Dim oDrawingText As DrawingText
+        '    Dim Y As Integer, NoteCntr As Integer, Note As Range
 
-            NoteCntr = 1
+        '    NoteCntr = 1
 
-            oDrawingText = oDrawingView.Texts.Add(" GENERAL NOTES", 30, 530 - Y) 'First line of Text ' NOTES: UNLESS OTHERWISE SPECIFIED
-            'oDrawingText.TextProperties.Justification = catLeft
+        '    oDrawingText = oDrawingView.Texts.Add(" GENERAL NOTES", 30, 530 - Y) 'First line of Text ' NOTES: UNLESS OTHERWISE SPECIFIED
+        '    'oDrawingText.TextProperties.Justification = catLeft
 
-            oDrawingText.WrappingWidth = 500
-            oDrawingText.SetParameterOnSubString(catFontSize, 1, 13, 6350) 'oDrawingText.SetParameterOnSubString catBold, 1, 6, 1
-            Y = Y + 15
+        '    oDrawingText.WrappingWidth = 500
+        '    oDrawingText.SetParameterOnSubString(catFontSize, 1, 13, 6350) 'oDrawingText.SetParameterOnSubString catBold, 1, 6, 1
+        '    Y = Y + 15
 
-            'For Each Note In TableNotes.ListColumns(3).DataBodyRange
-            '    Dim SelectedNote As Range
-            '    Set SelectedNote = Note.Offset(0, 4)
-            '
-            ''    If SelectedNote.Value2 = True Then
-            ''
-            '        Set oDrawingText = oDrawingView.Texts.Add(NoteCntr & ". " & Note.Value, 30, 530 - Y)
-            '        oDrawingText.TextProperties.Justification = catLeft
-            '        oDrawingText.WrappingWidth = 500
-            '
-            '        If Note.Offset(0, -1).Value <> "" Then
-            '            oDrawingText.Name = "Note_ID_" & Note.Offset(0, 3).Value
-            '        End If
-            '
-            '        'If Note.Offset(0, 2).Value = "Yes" Then Call DrwFlagNote(oDrawingText)
-            '
-            '        Y = Y + 15
-            '        NoteCntr = NoteCntr + 1
-            ''    End If
-            'Next
-        End Sub
+        '    'For Each Note In TableNotes.ListColumns(3).DataBodyRange
+        '    '    Dim SelectedNote As Range
+        '    '    Set SelectedNote = Note.Offset(0, 4)
+        '    '
+        '    ''    If SelectedNote.Value2 = True Then
+        '    ''
+        '    '        Set oDrawingText = oDrawingView.Texts.Add(NoteCntr & ". " & Note.Value, 30, 530 - Y)
+        '    '        oDrawingText.TextProperties.Justification = catLeft
+        '    '        oDrawingText.WrappingWidth = 500
+        '    '
+        '    '        If Note.Offset(0, -1).Value <> "" Then
+        '    '            oDrawingText.Name = "Note_ID_" & Note.Offset(0, 3).Value
+        '    '        End If
+        '    '
+        '    '        'If Note.Offset(0, 2).Value = "Yes" Then Call DrwFlagNote(oDrawingText)
+        '    '
+        '    '        Y = Y + 15
+        '    '        NoteCntr = NoteCntr + 1
+        '    ''    End If
+        '    'Next
+        'End Sub
 
         Function DrawingZone() As String
             Dim CATIA As Object
@@ -1119,100 +950,7 @@ Public Class Cl_CATIA
         '            ActiveSheet.Shapes.Range(Array("2DDescription")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
         '        End Sub
 
-        Sub XLTo2D(Table As ListObject, QtyCol As Integer, PartNoCol As Integer, NomenclatureCol As Integer, MatSpecCol As Integer, ItemNoCol As Integer)
 
-            Dim CATIA As Object
-
-            CATIA = GetObject(, "CATIA.Application")
-
-            Dim oDrawingDocument 'As DrawingDocument
-            'Set oDrawingDocument = CATIA.ActiveDocument
-
-            On Error Resume Next
-
-            oDrawingDocument = CATIA.ActiveDocument
-
-            If Err.Number <> 0 Then
-                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "in the Active session", vbCritical, "Open a Drawing")
-                Exit Sub
-            End If
-
-            Dim oDrwSheets As DrawingSheets
-            Dim oDrwSheet As DrawingSheet
-
-            Dim oDrwView As DrawingView
-            oDrwSheets = oDrawingDocument.IID_DrawingSheets
-
-            oDrwView = oDrwSheet.Views.ActiveView
-            'oDrView.Select
-
-            'Retrieve the view's tables collection
-            Dim oDrwTables As DrawingTables
-            oDrwTables = oDrwView.Tables
-
-            ' Table.Range.AutoFilter Field:=2, Criteria1:=RGB(255, 255, 255), Operator:=xlFilterNoFill
-
-            Dim TableCount As Integer
-
-            Dim oRow As Range                           'See if there's parts that needs to be omitted
-            For Each oRow In Table.DataBodyRange.Rows
-                If oRow.Columns(2).Interior.Color <> 15773696 Then
-                    TableCount = TableCount + 1
-                End If
-            Next oRow
-
-            ' Create a new drawing table
-            Dim oDrwTable As DrawingTable
-            oDrwTable = oDrwTables.Add(896.650497436523, 126.999582529068, TableCount, 6, 5, 20)  ' double  iPositionX,double  iPositionY, long  iNumberOfRow, long  iNumberOfColumn, double  iRowHeight, double  iColumnWidth)
-
-            ' Set the drawing table's name
-            oDrwTable.Name = "Parts List"
-
-            'Set the column sizes
-            oDrwTable.SetColumnSize(1, 15.24)
-            oDrwTable.SetColumnSize(2, 127)
-            oDrwTable.SetColumnSize(3, 15.24)
-            oDrwTable.SetColumnSize(4, 50.8)
-            oDrwTable.SetColumnSize(5, 55.88)
-            oDrwTable.SetColumnSize(6, 15.24)
-            oDrwTable.AnchorPoint = CatTableBottomLeft
-
-            Dim i As Integer
-            i = 1
-
-
-            Dim TotalRows As Integer, RowNbr As Integer
-            'Totalrows = Table.Rows.count
-
-
-            For Each oRow In Table.DataBodyRange.Rows
-
-                If oRow.Columns(2).Interior.Color <> 15773696 Then
-
-                    Dim ItemNo As String
-                    ItemNo = i
-
-                    ' ********FIX THIS YOU LAZY CODER 'oDrwTable.SetCellString (i), 4, oRow.Columns(2).Value   'Parts
-                    'oDrwTable.SetCellString (i), 3, oRow.Columns(1).Value   'Qty
-                    'oDrwTable.SetCellString (i), 2, oRow.Columns(3).Value   'Nomenclature
-
-                    If ItemNoCol = 0 Then
-                        oDrwTable.SetCellString(i, 1, oDrwTable.NumberOfRows + 1 - ItemNo) 'ItemNo
-                    Else
-                        oDrwTable.SetCellString(i, 1, oRow.Columns(ItemNoCol).Value)
-                    End If
-
-                    If MatSpecCol <> 0 Then                                               'MatSpec
-                        oDrwTable.SetCellString(i, 5, oRow.Columns(MatSpecCol).Value)
-                    End If
-
-                    oDrwTable.SetCellAlignment(i, 2, CatTableMiddleLeft)
-
-                    i = i + 1
-                End If
-            Next oRow
-
-        End Sub
     End Class
     Public Class UDF
         Public Class Panel

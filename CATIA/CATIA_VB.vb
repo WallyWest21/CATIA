@@ -33,6 +33,9 @@ Public Class Cl_CATIA
     End Function
     Public Class _3D
         Public Class Product
+            Public Sub test()
+
+            End Sub
             Public Part As String
             Function GetProductDocument() As ProductDocument
                 CATIA = GetCATIA()

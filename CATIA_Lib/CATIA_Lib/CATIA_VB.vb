@@ -1,19 +1,20 @@
-﻿Imports DrawingSheets = DRAFTINGITF.DrawingSheets
+﻿Imports DrawingViews = DRAFTINGITF.DrawingViews
+Imports DrawingView = DRAFTINGITF.DrawingView
+Imports DrawingSheets = DRAFTINGITF.DrawingSheets
 Imports DrawingSheet = DRAFTINGITF.DrawingSheet
 
-Imports DrawingViews = DRAFTINGITF.DrawingViews
-Imports DrawingView = DRAFTINGITF.DrawingView
-
-Imports DRAFTINGITF.IID_DraftingInterfaces
+'Imports DRAFTINGITF.IID_DraftingInterfaces
 Imports DRAFTINGITF
 Imports DRAFTINGITF.CatTextProperty
-Imports DRAFTINGITF.CatTablePosition
+'Imports DRAFTINGITF.CatTablePosition
 
 Imports MECMOD
 
 Imports ProductStructureTypeLib
 
 Imports INFITF
+Imports System.Collections.Generic
+
 Public Class Cl_CATIA
     Shared oCATIA As Object
     Shared Function GetCATIA() As Object
@@ -30,6 +31,9 @@ Public Class Cl_CATIA
     End Function
     Public Class _3D
         Public Class Product
+            Public Sub test()
+                MsgBox("hi")
+            End Sub
             Public Part As String
             Function GetProductDocument() As ProductDocument
                 oCATIA = GetCATIA()
@@ -50,14 +54,14 @@ Public Class Cl_CATIA
 
                 ActiveProductDocument = GetProductDocument()
 
-                Dim What(0) As Object
+                Dim What(0) 'As Object
                 What(0) = "Product"
 
                 Dim SelectedProduct As SelectedElement
-                SelectedProduct = oCATIA.ActiveDocument.Selection
+                SelectedProduct = ActiveProductDocument.Selection
                 SelectedProduct.Clear()
 
-                Dim e As String
+                Dim e 'As String
                 e = SelectedProduct.SelectElement3(What, "Select a Product or a Component", False, 2, False)
 
                 ActiveProduct = SelectedProduct.Item(1).Value.partnumber
@@ -390,13 +394,13 @@ Public Class Cl_CATIA
                 Select3DPart = ActivePart
             End Function
 
-            Function SelectAxis() As Axis
+            'Function SelectAxis() As Axis
 
-            End Function
+            'End Function
 
-            Function SelectMatingFace() As Face
+            'Function SelectMatingFace() As Face
 
-            End Function
+            'End Function
 
         End Class
     End Class
@@ -413,13 +417,33 @@ Public Class Cl_CATIA
                 Public Nomenclature As String
             End Class
         End Class
+        ''' <summary>
+        ''' 
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function PartsList() As List(Of cl_PartsList)
+            Dim cl_PL As New cl_PartsList
+            Dim oPartsList As New List(Of cl_PartsList)
 
-        Function PartsList() As List(Of cl_PartsList)
-            Return PartsList
+            For item As Integer = 1 To Select2DTable.NumberOfRows
+
+                cl_PL.ItemNo = Select2DTable.GetCellString(item, 1)
+                cl_PL.Nomenclature = Select2DTable.GetCellString(item, 2)
+                cl_PL.Quantity = Select2DTable.GetCellString(item, 3)
+                cl_PL.PartNo = Select2DTable.GetCellString(item, 4)
+                cl_PL.Material = Select2DTable.GetCellString(item, 5)
+
+                oPartsList.Add(cl_PL)
+                cl_PL = Nothing
+
+            Next
+
+
+            Return oPartsList
         End Function
 
 
-        Function GetDrawingDocument() As DrawingDocument
+        Public Function GetDrawingDocument() As DrawingDocument
             oCATIA = GetCATIA()
             Dim MyDrawingDocument As DrawingDocument
 
@@ -432,7 +456,7 @@ Public Class Cl_CATIA
             GetDrawingDocument = MyDrawingDocument
         End Function
 
-        Function Select2DTable() As DrawingTable
+        Public Function Select2DTable() As DrawingTable
             Dim CATIA As Object, ActiveDrawingDocument As DrawingDocument, ActiveTable As DrawingTable
             Dim e As String
             Dim What(0) As Object

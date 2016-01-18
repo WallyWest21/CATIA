@@ -1,24 +1,13 @@
-﻿Imports DrawingViews = DRAFTINGITF.DrawingViews
-Imports DrawingView = DRAFTINGITF.DrawingView
-Imports DrawingSheets = DRAFTINGITF.DrawingSheets
-Imports DrawingSheet = DRAFTINGITF.DrawingSheet
-
-'Imports DRAFTINGITF.IID_DraftingInterfaces
+﻿Imports INFITF
+Imports MECMOD
+Imports ProductStructureTypeLib
+Imports INFITF.CATMultiSelectionMode
 Imports DRAFTINGITF
 Imports DRAFTINGITF.CatTextProperty
-'Imports DRAFTINGITF.CatTablePosition
 
-Imports MECMOD
-
-Imports ProductStructureTypeLib
-
-Imports INFITF
-Imports INFITF.CATMultiSelectionMode
-Imports System.Collections.Generic
-
-Public Class Cl_CATIA
-    Shared oCATIA As Object
-    Shared Function GetCATIA() As Object
+Public Class cl_VB_CATIALib
+    Shared oCATIA As INFITF.Application 'http://www.coe.org/p/fo/et/thread=22850
+    Shared Function GetCATIA() As INFITF.Application
         oCATIA = GetObject(, "CATIA.Application")
         If oCATIA Is Nothing Or Err.Number <> 0 Then
             MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
@@ -423,20 +412,28 @@ Public Class Cl_CATIA
         ''' </summary>
         ''' <returns></returns>
         Public Function PartsList() As List(Of cl_PartsList)
-            Dim cl_PL As New cl_PartsList
+            Dim cl_PL As New cl_PartsList, item As Integer
             Dim oPartsList As New List(Of cl_PartsList)
+            Dim Active2DTable As DrawingTable
 
-            For item As Integer = 1 To Select2DTable.NumberOfRows
+            Active2DTable = Select2DTable()
 
-                cl_PL.ItemNo = Select2DTable.GetCellString(item, 1)
-                cl_PL.Nomenclature = Select2DTable.GetCellString(item, 2)
-                cl_PL.Quantity = Select2DTable.GetCellString(item, 3)
-                cl_PL.PartNo = Select2DTable.GetCellString(item, 4)
-                cl_PL.Material = Select2DTable.GetCellString(item, 5)
+            For item = 1 To Active2DTable.NumberOfRows
+
+                'cl_PL.ItemNo = Active2DTable.GetCellString(1, 1)
+                'cl_PL.Nomenclature = Active2DTable.GetCellString(item, 2)
+                'cl_PL.Quantity = Active2DTable.GetCellString(item, 3)
+                'cl_PL.PartNo = Active2DTable.GetCellString(item, 4)
+                'cl_PL.Material = Active2DTable.GetCellString(item, 5)
+
+                cl_PL.PartNo = Active2DTable.GetCellString(1, 1)
 
                 oPartsList.Add(cl_PL)
                 cl_PL = Nothing
-            Next
+
+            Next item
+
+
             Return oPartsList
         End Function
         Public Function GetDrawingDocument() As DrawingDocument
@@ -452,26 +449,28 @@ Public Class Cl_CATIA
             GetDrawingDocument = MyDrawingDocument
         End Function
         Public Function Select2DTable() As DrawingTable
-            Dim CATIA As Object, ActiveDrawingDocument As DrawingDocument, ActiveTable As DrawingTable
-            Dim e
+            Dim ActiveDrawingDocument As DrawingDocument, ActiveTable As DrawingTable
+            Dim SelectedTable As Selection
+            Dim e As String
             Dim What(0)
-            Dim SelectedTable
-            CATIA = GetCATIA()
+
+            oCATIA = GetCATIA()
             ActiveDrawingDocument = GetDrawingDocument()
 
             What(0) = "DrawingTable"
-            Msgbox("hi")
+            'MsgBox("hi")
 
-            'SelectedTable = CATIA.ActiveDocument.Selection
-            'SelectedTable.Clear()
+            SelectedTable = ActiveDrawingDocument.Selection
+            SelectedTable.Clear()
 
-            e = SelectedTable.SelectElement3(What, "Select a DrawingTable", True, 2, False)
+            e = SelectedTable.SelectElement3(What, "Select a DrawingTable", True, CATMultiSelectionMode.CATMultiSelTriggWhenUserValidatesSelection, False)
+            'e = SelectedTable.SelectElement2(What, "Select a DrawingTable", False)
 
             ActiveTable = SelectedTable.Item(1).Value
-
             SelectedTable.Clear()
-            Select2DTable = ActiveTable
 
+            Select2DTable = ActiveTable
+            MsgBox("hi")
         End Function
         Sub Clean2DTable()
             Dim Table2D As DrawingTable
@@ -966,39 +965,6 @@ Public Class Cl_CATIA
         '            ActiveSheet.Shapes.Range(Array("2DDescription")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
         '        End Sub
 
-
-    End Class
-    Public Class UDF
-        Public Class Panel
-
-        End Class
-        Public Class Drawer
-
-        End Class
-
-        Public Class BondedStructure
-        End Class
-
-        Public Class DecoPanel
-
-        End Class
-        Public Class Monument
-
-        End Class
-
-        Public Class Hardware
-            Public Class Fastener
-
-            End Class
-
-            Public Class Insert
-
-            End Class
-
-            Public Class Washer
-
-            End Class
-        End Class
 
     End Class
 End Class

@@ -50,6 +50,13 @@ Partial Public Class MainWindow
     
     #End ExternalSource
     
+    
+    #ExternalSource("..\..\MainWindow.xaml",11)
+    <System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")>  _
+    Friend WithEvents button1 As System.Windows.Controls.Button
+    
+    #End ExternalSource
+    
     Private _contentLoaded As Boolean
     
     '''<summary>
@@ -79,6 +86,10 @@ Partial Public Class MainWindow
     Sub System_Windows_Markup_IComponentConnector_Connect(ByVal connectionId As Integer, ByVal target As Object) Implements System.Windows.Markup.IComponentConnector.Connect
         If (connectionId = 1) Then
             Me.button = CType(target,System.Windows.Controls.Button)
+            Return
+        End If
+        If (connectionId = 2) Then
+            Me.button1 = CType(target,System.Windows.Controls.Button)
             Return
         End If
         Me._contentLoaded = true

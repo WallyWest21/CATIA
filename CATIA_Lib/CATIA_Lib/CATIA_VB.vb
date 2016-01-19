@@ -11,10 +11,8 @@ Imports DRAFTINGITF.CatTextProperty
 Imports MECMOD
 
 Imports ProductStructureTypeLib
-
 Imports INFITF
 Imports INFITF.CATMultiSelectionMode
-Imports System.Collections.Generic
 
 Public Class Cl_CATIA
     Shared oCATIA As Object
@@ -30,7 +28,7 @@ Public Class Cl_CATIA
         GetCATIA = oCATIA
     End Function
     Public Class _3D
-        Public Class Product
+        Public Class oProduct
             Public Sub test()
                 MsgBox("hi")
             End Sub
@@ -48,24 +46,23 @@ Public Class Cl_CATIA
                 End If
                 GetProductDocument = MyProductDocument
             End Function
-            Public Function SelectSingle3DProduct() As String
-
-                Dim ActiveProductDocument As ProductDocument, ActiveProduct As Products
+            Public Function SelectSingle3DProduct() As Product
+                Dim ActiveProductDocument As ProductDocument, ActiveProduct As Product
 
                 ActiveProductDocument = GetProductDocument()
 
                 Dim What(0) 'As Object
                 What(0) = "Product"
 
-                Dim SelectedProduct As SelectedElement
-                'SelectedProduct = ActiveProductDocument.Selection
-                'SelectedProduct.Clear()
+                Dim SelectedProduct As Selection
+                SelectedProduct = ActiveProductDocument.Selection
+                SelectedProduct.Clear()
 
                 Dim e 'As String
                 e = SelectedProduct.SelectElement3(What, "Select a Product or a Component", False, CATMultiSelTriggWhenUserValidatesSelection, False)
 
 
-                ActiveProduct = SelectedProduct.Item(1).Value.partnumber
+                ActiveProduct = SelectedProduct.Item(1).Value
                 SelectedProduct.Clear()
 
                 Return ActiveProduct
@@ -313,6 +310,30 @@ Public Class Cl_CATIA
 
             '    ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
             'End Sub
+
+            Public Function PartsList() As List(Of cl_PartsList)
+                Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList)
+                Dim item As Integer, ActiveProduct As Product
+
+                ActiveProduct = SelectSingle3DProduct()
+
+                For item = 1 To ActiveProduct.Products.Count
+                    cl_PL = New cl_PartsList
+
+                    cl_PL.PartNo = ActiveProduct.Products.Item(item).PartNumber
+                    cl_PL.Nomenclature = ActiveProduct.Products.Item(item).Nomenclature
+                    'cl_PL.Material = ActiveProduct.Products.Item(item).Parameters.Item("Material").Value
+                    'cl_PL.Manufacturer = ActiveProduct.Products.Item(item).Parameters.Item("Manufacturer").Value
+
+                    oPartsList.Add(cl_PL)
+
+                Next item
+                cl_PL = Nothing
+
+                Return oPartsList
+            End Function
+
+
             Public Function SelectMultiple3DProducts() As List(Of Products)
 
                 'Dim SelectedProducts As Products
@@ -341,18 +362,83 @@ Public Class Cl_CATIA
                 Return ActiveProducts
             End Function
             Public Class cl_PartsList
-                Public PartNo As String
-                Public Quantity As String
-                Public Nomenclature As String
-                Public ItemNo As String
-                Public Material As String
+
+                Private _PartNo As String
+                Public Property PartNo() As String
+                    Get
+                        Return _PartNo
+                    End Get
+                    Set(ByVal value As String)
+                        _PartNo = value
+                    End Set
+                End Property
+
+                Private _Quantity As String
+                Public Property Quantity() As String
+                    Get
+                        Return _Quantity
+                    End Get
+                    Set(ByVal value As String)
+                        _Quantity = value
+                    End Set
+                End Property
+
+                Private _Nomenclature As String
+                Public Property Nomenclature() As String
+                    Get
+                        Return _Nomenclature
+                    End Get
+                    Set(ByVal value As String)
+                        _Nomenclature = value
+                    End Set
+                End Property
+
+                Private _Description As String
+                Public Property Description() As String
+                    Get
+                        Return _Description
+                    End Get
+                    Set(ByVal value As String)
+                        _Description = value
+                    End Set
+                End Property
+
+                Private _Manufacturer As String
+                Public Property Manufacturer() As String
+                    Get
+                        Return _Manufacturer
+                    End Get
+                    Set(ByVal value As String)
+                        If value = Nothing Then
+                            _Manufacturer = "n/a"
+                        Else
+                            _Manufacturer = value
+                        End If
+                    End Set
+                End Property
+
+                Private _Material As String
+                Public Property Material() As String
+                    Get
+                        Return _Material
+                    End Get
+                    Set(ByVal value As String)
+
+                        If value = Nothing Then
+                            _Material = "n/a"
+                        Else
+                            _Material = value
+                        End If
+                    End Set
+                End Property
+
                 Public Class cl_Parent
                     Public PartNo As String
                     Public Nomenclature As String
                 End Class
             End Class
         End Class
-        Public Class Part
+        Public Class oPart
             Function GetPartDocument() As PartDocument
                 oCATIA = GetCATIA()
                 Dim MyPartDocument As PartDocument
@@ -369,9 +455,9 @@ Public Class Cl_CATIA
             Public Class PartMetaData
                 Dim PartNo, Nomenclature, Description, Parent, JobNo, RT As String
             End Class
-            Function Select3DPart() As Part
+            Function Select3DPart() As oPart
 
-                Dim CATIA As Object, ActivePartDocument As ProductDocument, ActivePart As Part
+                Dim CATIA As Object, ActivePartDocument As ProductDocument, ActivePart As oPart
 
                 CATIA = GetCATIA()
                 ActivePartDocument = GetPartDocument()
@@ -408,11 +494,57 @@ Public Class Cl_CATIA
     Public Class Drawing
 
         Public Class cl_PartsList
-            Public PartNo As String
-            Public Quantity As String
-            Public Nomenclature As String
-            Public ItemNo As String
-            Public Material As String
+
+            Private _PartNo As String
+            Public Property PartNo() As String
+                Get
+                    Return _PartNo
+                End Get
+                Set(ByVal value As String)
+                    _PartNo = value
+                End Set
+            End Property
+
+            Private _Quantity As String
+            Public Property Quantity() As String
+                Get
+                    Return _Quantity
+                End Get
+                Set(ByVal value As String)
+                    _Quantity = value
+                End Set
+            End Property
+
+            Private _Nomenclature As String
+            Public Property Nomenclature() As String
+                Get
+                    Return _Nomenclature
+                End Get
+                Set(ByVal value As String)
+                    _Nomenclature = value
+                End Set
+            End Property
+
+            Private _ItemNo As String
+            Public Property ItemNo() As String
+                Get
+                    Return _ItemNo
+                End Get
+                Set(ByVal value As String)
+                    _ItemNo = value
+                End Set
+            End Property
+
+            Private _Material As String
+            Public Property Material() As String
+                Get
+                    Return _Material
+                End Get
+                Set(ByVal value As String)
+                    _Material = value
+                End Set
+            End Property
+
             Public Class cl_Parent
                 Public PartNo As String
                 Public Nomenclature As String
@@ -423,20 +555,26 @@ Public Class Cl_CATIA
         ''' </summary>
         ''' <returns></returns>
         Public Function PartsList() As List(Of cl_PartsList)
-            Dim cl_PL As New cl_PartsList
-            Dim oPartsList As New List(Of cl_PartsList)
+            Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList)
+            Dim item As Integer
 
-            For item As Integer = 1 To Select2DTable.NumberOfRows
+            Dim Active2DTable As DrawingTable
+            Active2DTable = Select2DTable()
 
-                cl_PL.ItemNo = Select2DTable.GetCellString(item, 1)
-                cl_PL.Nomenclature = Select2DTable.GetCellString(item, 2)
-                cl_PL.Quantity = Select2DTable.GetCellString(item, 3)
-                cl_PL.PartNo = Select2DTable.GetCellString(item, 4)
-                cl_PL.Material = Select2DTable.GetCellString(item, 5)
+            For item = 1 To Active2DTable.NumberOfRows
+                cl_PL = New cl_PartsList
+
+                cl_PL.PartNo = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 3)
+                cl_PL.ItemNo = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns)
+                cl_PL.Material = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 1)
+                cl_PL.Nomenclature = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 2)
+                cl_PL.Quantity = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 4)
 
                 oPartsList.Add(cl_PL)
-                cl_PL = Nothing
-            Next
+
+            Next item
+            cl_PL = Nothing
+
             Return oPartsList
         End Function
         Public Function GetDrawingDocument() As DrawingDocument
@@ -452,24 +590,21 @@ Public Class Cl_CATIA
             GetDrawingDocument = MyDrawingDocument
         End Function
         Public Function Select2DTable() As DrawingTable
-            Dim CATIA As Object, ActiveDrawingDocument As DrawingDocument, ActiveTable As DrawingTable
-            Dim e
+            Dim ActiveDrawingDocument As DrawingDocument, ActiveTable As DrawingTable, SelectedTable As Selection, e As String
             Dim What(0)
-            Dim SelectedTable
-            CATIA = GetCATIA()
+
+            oCATIA = GetCATIA()
             ActiveDrawingDocument = GetDrawingDocument()
 
+            SelectedTable = ActiveDrawingDocument.Selection
+            SelectedTable.Clear()
+
             What(0) = "DrawingTable"
-            Msgbox("hi")
-
-            'SelectedTable = CATIA.ActiveDocument.Selection
-            'SelectedTable.Clear()
-
-            e = SelectedTable.SelectElement3(What, "Select a DrawingTable", True, 2, False)
+            e = SelectedTable.SelectElement3(What, "Select a DrawingTable", True, CATMultiSelectionMode.CATMultiSelTriggWhenUserValidatesSelection, False)
 
             ActiveTable = SelectedTable.Item(1).Value
-
             SelectedTable.Clear()
+
             Select2DTable = ActiveTable
 
         End Function

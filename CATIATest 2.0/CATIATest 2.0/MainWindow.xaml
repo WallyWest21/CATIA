@@ -5,9 +5,47 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CATIATest_2._0"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Height="69" Margin="359,80,0,0" VerticalAlignment="Top" Width="82"/>
+        Title="MainWindow" Height="350" Width="525" Loaded="Window_Loaded">
+    <Window.Resources>
 
+        <DataTemplate x:Key="NotesTemplate">
+            <Grid  HorizontalAlignment="Stretch" Margin="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100*"/>
+                    <ColumnDefinition Width="50*" FrameworkElement.FlowDirection="RightToLeft"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="tblk_Note"  TextWrapping="Wrap" HorizontalAlignment="Left" Text="{Binding PartNo}"  VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
+                <ToggleButton x:Name="btn_Note" Content="Add Note" HorizontalAlignment="Right"  Opacity="1"  Grid.Column=" 1" Margin="5,0,0,0" Grid.Row="0" VerticalAlignment="Top" Visibility="Hidden"/>
+                <DockPanel Grid.Column="0" Grid.Row="1" >
+                    <TextBlock x:Name="tblk_creator" Text="{Binding Nomenclature}" DockPanel.Dock="Left" FontSize="12" Foreground="Gray" Margin="2,0"/>
+                    <TextBlock x:Name="tblk_revision" Text="{Binding ItemNo}" DockPanel.Dock="Left" FontSize="12" Foreground="Gray" Margin="2,0"/>
+
+                </DockPanel>
+            </Grid>
+        </DataTemplate>
+
+    </Window.Resources>
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Height="69"  VerticalAlignment="Top" Width="82" RenderTransformOrigin="-1.027,0.362"/>
+            <ListBox x:Name="MyListBox"  Height="Auto" Margin="2"  ItemTemplate="{StaticResource NotesTemplate}"  HorizontalAlignment="Stretch" BorderThickness="0" SelectionMode="Multiple" >
+                <ListBox.BitmapEffect>
+                    <DropShadowBitmapEffect Color="Black" Direction="270" ShadowDepth=".15" Softness=".10"/>
+                </ListBox.BitmapEffect>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+            </ListBox>
+        </StackPanel>
     </Grid>
+
+
 </Window>

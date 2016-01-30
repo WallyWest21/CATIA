@@ -11,12 +11,15 @@ Imports DRAFTINGITF.CatTextProperty
 Imports MECMOD
 
 Imports ProductStructureTypeLib
+Imports ProductStructureTypeLib.CatWorkModeType 'apply design mode
+
+
 Imports INFITF
 Imports INFITF.CATMultiSelectionMode
 
 Public Class Cl_CATIA
-    Shared oCATIA As Object
-    Shared Function GetCATIA() As Object
+    Shared oCATIA As INFITF.Application
+    Shared Function GetCATIA() As INFITF.Application
         oCATIA = GetObject(, "CATIA.Application")
         If oCATIA Is Nothing Or Err.Number <> 0 Then
             MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
@@ -26,6 +29,26 @@ Public Class Cl_CATIA
         End If
 
         GetCATIA = oCATIA
+    End Function
+    Public Function IsCATIAOpen() As Boolean
+        Try
+            oCATIA = GetObject(, "CATIA.Application")
+        Catch ex As Exception
+            MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
+            Return False
+            Exit Function
+        End Try
+
+
+        If oCATIA Is Nothing Or Err.Number <> 0 Then
+            MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
+            Return False
+            Exit Function            '       Set CATIA = CreateObject("CATIA.Application")
+            '       CATIA.Visible = True
+        Else
+            Return True
+        End If
+
     End Function
     Public Class _3D
         Public Class oProduct
@@ -310,7 +333,6 @@ Public Class Cl_CATIA
 
             '    ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
             'End Sub
-
             Public Function PartsList() As List(Of cl_PartsList)
                 Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList)
                 Dim item As Integer, ActiveProduct As Product
@@ -330,10 +352,50 @@ Public Class Cl_CATIA
                 Next item
                 cl_PL = Nothing
 
-                Return oPartsList
+                Call WalkDownTree(ActiveProduct)
+
+                Return AllPartsList
             End Function
+            Public AllPartsList As New List(Of cl_PartsList)
+            Sub WalkDownTree(ActiveProduct As Product)
+                Dim cl_PL As New cl_PartsList, oInstances As Products = ActiveProduct.Products
+
+                '-----No instances found then this is CATPart
+                If oInstances.Count = 0 Then
+                    Exit Sub
+                End If
 
 
+                Try
+                    Parallel.For(1, oInstances.Count + 1, Sub(k)
+                                                              cl_PL = New cl_PartsList
+                                                              Dim oInst As Product
+
+                                                              oInst = oInstances.Item(k)
+                                                              oInst.ApplyWorkMode(DESIGN_MODE)   'apply design mode
+
+                                                              cl_PL.PartNo = oInst.PartNumber
+                                                              cl_PL.Nomenclature = oInst.Nomenclature
+                                                              cl_PL.ParentPartNo = oInst.Parent.Parent.PartNumber
+                                                              cl_PL.ParentNomenclature = oInst.Parent.Parent.Nomenclature
+                                                              AllPartsList.Add(cl_PL)
+                                                              Call WalkDownTree(oInst)
+
+
+                                                          End Sub)
+                    cl_PL = Nothing
+
+                Catch ex As Exception
+                    MsgBox("You need a multicore computer")
+                End Try
+
+
+
+
+
+
+
+            End Sub
             Public Function SelectMultiple3DProducts() As List(Of Products)
 
                 'Dim SelectedProducts As Products
@@ -361,6 +423,7 @@ Public Class Cl_CATIA
 
                 Return ActiveProducts
             End Function
+
             Public Class cl_PartsList
 
                 Private _PartNo As String
@@ -389,7 +452,11 @@ Public Class Cl_CATIA
                         Return _Nomenclature
                     End Get
                     Set(ByVal value As String)
-                        _Nomenclature = value
+                        If value = vbNullString Then
+                            _Nomenclature = "N/A"
+                        Else
+                            _Nomenclature = value
+                        End If
                     End Set
                 End Property
 
@@ -399,7 +466,11 @@ Public Class Cl_CATIA
                         Return _Description
                     End Get
                     Set(ByVal value As String)
-                        _Description = value
+                        If value = vbNullString Then
+                            _Description = "N/A"
+                        Else
+                            _Description = value
+                        End If
                     End Set
                 End Property
 
@@ -409,8 +480,8 @@ Public Class Cl_CATIA
                         Return _Manufacturer
                     End Get
                     Set(ByVal value As String)
-                        If value = Nothing Then
-                            _Manufacturer = "n/a"
+                        If value = vbNullString Then
+                            _Manufacturer = "N/A"
                         Else
                             _Manufacturer = value
                         End If
@@ -424,13 +495,33 @@ Public Class Cl_CATIA
                     End Get
                     Set(ByVal value As String)
 
-                        If value = Nothing Then
-                            _Material = "n/a"
+                        If value = vbNullString Then
+                            _Material = "N/A"
                         Else
                             _Material = value
                         End If
                     End Set
                 End Property
+
+                Private _ParentPartNo As String
+                Public Property ParentPartNo() As String
+                    Get
+                        Return _ParentPartNo
+                    End Get
+                    Set(ByVal value As String)
+                        _ParentPartNo = value
+                    End Set
+                End Property
+                Private _ParentNomenclature As String
+                Public Property ParentNomenclature() As String
+                    Get
+                        Return _ParentNomenclature
+                    End Get
+                    Set(ByVal value As String)
+                        _ParentNomenclature = value
+                    End Set
+                End Property
+
 
                 Public Class cl_Parent
                     Public PartNo As String
@@ -544,7 +635,24 @@ Public Class Cl_CATIA
                     _Material = value
                 End Set
             End Property
-
+            Private _ParentPartNo As String
+            Public Property ParentPartNo() As String
+                Get
+                    Return _ParentPartNo
+                End Get
+                Set(ByVal value As String)
+                    _ParentPartNo = value
+                End Set
+            End Property
+            Private _ParentNomenclature As String
+            Public Property ParentNomenclature() As String
+                Get
+                    Return _ParentNomenclature
+                End Get
+                Set(ByVal value As String)
+                    _ParentNomenclature = value
+                End Set
+            End Property
             Public Class cl_Parent
                 Public PartNo As String
                 Public Nomenclature As String

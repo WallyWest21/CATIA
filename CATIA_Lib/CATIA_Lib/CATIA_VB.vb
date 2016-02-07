@@ -13,9 +13,9 @@ Imports MECMOD
 Imports ProductStructureTypeLib
 Imports ProductStructureTypeLib.CatWorkModeType 'apply design mode
 
-
 Imports INFITF
 Imports INFITF.CATMultiSelectionMode
+Imports System.Linq
 
 Public Class Cl_CATIA
     Shared oCATIA As INFITF.Application
@@ -38,7 +38,6 @@ Public Class Cl_CATIA
             Return False
             Exit Function
         End Try
-
 
         If oCATIA Is Nothing Or Err.Number <> 0 Then
             MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
@@ -84,255 +83,11 @@ Public Class Cl_CATIA
                 Dim e 'As String
                 e = SelectedProduct.SelectElement3(What, "Select a Product or a Component", False, CATMultiSelTriggWhenUserValidatesSelection, False)
 
-
                 ActiveProduct = SelectedProduct.Item(1).Value
                 SelectedProduct.Clear()
 
                 Return ActiveProduct
             End Function
-            '            Public Function PartsList(ActiveProducts As List(Of Products)) As List(Of cl_PartsList)
-            '                Dim testobject As String
-            '                Dim cl_PL As New cl_PartsList
-            '                Dim ActiveProduct As Products
-            '                Dim counter As Integer
-            '                For Each ActiveProduct In ActiveProducts
-
-            '                    If ActiveProduct.Count = 0 Then
-            '                        Exit Function
-            '                    End If
-
-            '                    For counter = 1 To ActiveProduct.Count
-            '                        cl_PL.PartNo = ActiveProduct.Partnumber
-            '                        cl_PL.Nomenclature = ActiveProduct.Nomenclature
-
-            '                    Next
-
-            '                    Dim oInstances As Products
-
-            '                    oInstances = oInProduct.Products
-
-            '                    '-----No instances found then this is CATPart
-
-
-            '                    If oInstances.Count = 0 Then
-
-            '                        'MsgBox "This is a CATPart with part number " & oInProduct.PartNumber
-
-
-            '                        Exit Function
-
-            '                    End If
-
-
-            '                    '-----Found an instance therefore it is a CATProduct
-
-            '                    'MsgBox "This is a CATProduct with part number " & oInProduct.ReferenceProduct.PartNumber
-
-
-            '                    Dim k As Integer
-
-            '                    For k = 1 To oInstances.Count
-
-            '                        Dim oInst As Product
-
-            '   Set oInst = oInstances.Item(k)
-
-
-            ''apply design mode
-
-            'oInstances.Item(k).ApplyWorkMode DESIGN_MODE
-
-            '   Call WalkDownTree(oInst)
-
-            '                    Next
-
-
-            '                    End Sub
-            '                Next
-
-
-            '                'Try
-            '                '    Parallel.For(1, ActiveProduct.Count + 1, Sub(k)
-
-            '                '                                                 Dim oInst As INFITF.AnyObject
-            '                '                                                 oInst = ActiveProduct.Item(k)
-            '                '                                                 'ActiveProduct.Item(k).ApplyWorkMode(DESIGN_MODE)   'apply design mode
-            '                '                                                 'testobject = oInst.partnumber
-            '                '                                                 'If Validation.IsComponent(oInst) = False And oInstances.Item(k).Parent.Parent.PartNumber = oInProduct.partnumber Then
-            '                '                                                 'If Validation.IsComponent(oInst) = False And RealParent(oInst) = oInProduct.partnumber Then
-
-            '                '                                                 cl_PL.PartNo = oInst.Partnumber
-            '                '                                                 cl_PL.Nomenclature = oInst.Nomenclature
-
-            '                '                                                 MsgBox(cl_PL.Nomenclature)
-
-            '                '                                                 PartsList.Add(cl_PL)
-
-
-            '                '                                                 'Realchildren3D.Add(oInst.partnumber)
-            '                '                                                 '    comp.Add(oInst.partnumber)
-
-            '                '                                                 'End If
-
-            '                '                                                 'If Validation.IsComponent(oInst) = True And RealParent(oInst) = oInProduct.partnumber Then
-            '                '                                                 '    Call WalkDownTree(oInst)
-            '                '                                                 '    test = RealParent(oInst)
-
-            '                '                                                 'End If
-
-            '                '                                             End Sub)
-
-            '                'Catch ex As Exception
-            '                '    MsgBox("You need a multicore computer")
-            '                'End Try
-
-            '                For Each Child In ActiveProduct
-            '                    cl_PL.PartNo = Child.Partnumber
-            '                    cl_PL.Nomenclature = Child.Nomenclature
-            '                    'cl_PL.cl_Parent.
-
-            '                    MsgBox(cl_PL.Nomenclature)
-
-            '                    PartsList.Add(cl_PL)
-            '                Next
-
-
-            '                Return PartsList(ActiveProduct)
-            '            End Function
-            'Sub WalkDownTree(ByVal oInProduct As Object)
-            '    'As Product)
-
-            '    Dim Validation As New Validation
-            '    Dim test As String
-            '    Dim testobject As String
-            '    Dim oInstances As Products
-            '    oInstances = oInProduct.Products
-
-            '    '-----No instances found then this is CATPart
-
-            '    If oInstances.Count = 0 Then
-
-            '        Exit Sub
-            '    End If
-
-
-            '    Try
-            '        Parallel.For(1, oInstances.Count + 1, Sub(k)
-
-            '                                                  Dim oInst As INFITF.AnyObject
-            '                                                  oInst = oInstances.Item(k)
-            '                                                  oInstances.Item(k).ApplyWorkMode(DESIGN_MODE)   'apply design mode
-            '                                                  testobject = oInst.partnumber
-            '                                                  'If Validation.IsComponent(oInst) = False And oInstances.Item(k).Parent.Parent.PartNumber = oInProduct.partnumber Then
-            '                                                  If Validation.IsComponent(oInst) = False And RealParent(oInst) = oInProduct.partnumber Then
-
-            '                                                      Children3D.Add(oInst)
-            '                                                      Realchildren3D.Add(oInst.partnumber)
-            '                                                      comp.Add(oInst.partnumber)
-
-            '                                                  End If
-
-            '                                                  If Validation.IsComponent(oInst) = True And RealParent(oInst) = oInProduct.partnumber Then
-            '                                                      Call WalkDownTree(oInst)
-            '                                                      test = RealParent(oInst)
-
-            '                                                  End If
-
-            '                                              End Sub)
-
-            '    Catch ex As Exception
-            '        MsgBox("You need a multicore computer")
-            '    End Try
-            '    'Realchildren3D.Add("klhkjhklhjkhkjlhkljl")
-
-
-            '    '    lst1.Add("New Item")
-
-            '    'ListBox1.ItemsSource = ChildrenList.
-            '    comp.Add("comparator")
-
-
-            'End Sub
-
-            'Sub Select3DProduct()
-
-            '    Dim CATIA As Object, ActiveProductDocument As ProductDocument, ActProd As Products
-
-            '    CATIA = GetCATIA()
-            '    ActiveProductDocument = GetProductDocument()
-
-
-            '    Dim What(0) As Object
-            '    What(0) = "Product"
-
-            '    Dim UserSel As Object
-            '    UserSel = CATIA.ActiveDocument.Selection
-            '    UserSel.Clear()
-
-            '    Dim e As String
-            '    e = UserSel.SelectElement3(What, "Select a Product or a Component", False, 2, False)
-
-            '    Dim SelectedElement As Long, ActiveProduct
-
-            '    ActiveProduct = UserSel.Item(1).Value
-            '    UserSel.Clear()
-
-            '    ActiveProduct.ApplyWorkMode(DESIGN_MODE)
-
-            '    Dim DictStrChildren As Dictionary
-            '    DictStrChildren = CreateObject("Scripting.Dictionary")
-
-            '    Dim DictChildren As Dictionary
-            '    DictChildren = CreateObject("Scripting.Dictionary")
-
-            '    Dim ChildrenName As String
-
-            '    For i = 1 To ActiveProduct.Products.count
-            '        On Error Resume Next
-
-            '        ChildrenName = ActiveProduct.Products.Item(i).PartNumber
-
-
-            '        If ActiveProduct.Products.Item(i).ReferenceProduct.Name = Null Then
-            '            MsgBox("Make sure that all your part are loaded", vbCritical)
-            '            Exit Sub
-            '        End If
-
-            '        If Not DictStrChildren.exists(ChildrenName) Then 'And IsComponent(SelectedItem.Products.Item(i)) = False Then
-
-            '            Qty = 1
-            '            DictChildren.Add(Key:=ChildrenName, Item:=ActiveProduct.Products.Item(i))
-            '            DictStrChildren.Add(Key:=ChildrenName, Item:=Qty)
-
-            '        ElseIf DictStrChildren.exists(ChildrenName) Then
-            '            DictStrChildren.Item(ChildrenName) = DictStrChildren.Item(ChildrenName) + 1
-            '        End If
-
-            '    Next i
-
-
-            '    Dim BOM1 As New BOM
-            '    On Error Resume Next
-            '    Call BOM1.ClearFormat3D()
-            '    Range("Table3D").ClearContents()
-            '    Range("Table3D").ClearFormats()
-            '    Range("Table3D").WrapText = True
-            '    On Error GoTo 0
-
-            '    i = 0
-
-            '    For Each Key In DictStrChildren
-            '        ActiveSheet.Cells(i + 14, 1).Value = DictStrChildren(Key)
-            '        ActiveSheet.Cells(i + 14, 2).Value = Key
-            '        ActiveSheet.Cells(i + 14, 3).Value = DictChildren.Item(Key).DescriptionRef
-            '        i = i + 1
-            '    Next
-
-            '    ActiveSheet.Shapes.Range(Array("3DPartNo")).TextFrame2.TextRange.Characters.Text = ActiveProduct.Name
-            '    ActiveSheet.Shapes.Range(Array("3DDescription")).TextFrame2.TextRange.Characters.Text = ActiveProduct.DescriptionRef
-
-            '    ActiveSheet.Cells(12, 3).Value = Date & " " & Time()
-            'End Sub
             Public Function PartsList() As List(Of cl_PartsList)
                 Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList)
                 Dim item As Integer, ActiveProduct As Product
@@ -354,7 +109,25 @@ Public Class Cl_CATIA
 
                 Call WalkDownTree(ActiveProduct)
 
-                Return AllPartsList
+                Dim Children = From Child In AllPartsList
+                               Group Child By Child.PartNo, Child.Nomenclature, Child.ParentPartNo, Child.ParentNomenclature Into Group
+                               Order By PartNo
+                               Select Quantity = Group.Count, PartNo = PartNo, Nomenclature = Nomenclature, ParentPartNo = ParentPartNo, ParentNomenclature = ParentNomenclature
+
+                Dim ChildrenList As New List(Of cl_PartsList)
+
+                For Each child In Children
+                    cl_PL = New cl_PartsList
+                    cl_PL.Quantity = child.Quantity
+                    cl_PL.PartNo = child.PartNo
+                    cl_PL.Nomenclature = child.Nomenclature
+
+                    ChildrenList.Add(cl_PL)
+                Next
+
+                cl_PL = Nothing
+
+                Return ChildrenList
             End Function
             Public AllPartsList As New List(Of cl_PartsList)
             Sub WalkDownTree(ActiveProduct As Product)
@@ -364,7 +137,6 @@ Public Class Cl_CATIA
                 If oInstances.Count = 0 Then
                     Exit Sub
                 End If
-
 
                 Try
                     Parallel.For(1, oInstances.Count + 1, Sub(k)
@@ -381,19 +153,12 @@ Public Class Cl_CATIA
                                                               AllPartsList.Add(cl_PL)
                                                               Call WalkDownTree(oInst)
 
-
                                                           End Sub)
                     cl_PL = Nothing
 
                 Catch ex As Exception
                     MsgBox("You need a multicore computer")
                 End Try
-
-
-
-
-
-
 
             End Sub
             Public Function SelectMultiple3DProducts() As List(Of Products)
@@ -413,7 +178,6 @@ Public Class Cl_CATIA
 
                 Dim e As String
                 e = SelectedProducts.SelectElement3(What, "Select a Product or a Component", False, 2, False)
-
 
                 For counter = 1 To SelectedProducts.count
                     ActiveProducts.add(SelectedProducts.Item(counter).Value)
@@ -436,12 +200,12 @@ Public Class Cl_CATIA
                     End Set
                 End Property
 
-                Private _Quantity As String
-                Public Property Quantity() As String
+                Private _Quantity As Integer
+                Public Property Quantity() As Integer
                     Get
                         Return _Quantity
                     End Get
-                    Set(ByVal value As String)
+                    Set(ByVal value As Integer)
                         _Quantity = value
                     End Set
                 End Property
@@ -521,7 +285,6 @@ Public Class Cl_CATIA
                         _ParentNomenclature = value
                     End Set
                 End Property
-
 
                 Public Class cl_Parent
                     Public PartNo As String
@@ -635,13 +398,13 @@ Public Class Cl_CATIA
                     _Material = value
                 End Set
             End Property
-            Private _ParentPartNo As String
-            Public Property ParentPartNo() As String
+            Private _ParentDashNo As String
+            Public Property ParentDashNo() As String
                 Get
-                    Return _ParentPartNo
+                    Return _ParentDashNo
                 End Get
                 Set(ByVal value As String)
-                    _ParentPartNo = value
+                    _ParentDashNo = value
                 End Set
             End Property
             Private _ParentNomenclature As String
@@ -653,37 +416,125 @@ Public Class Cl_CATIA
                     _ParentNomenclature = value
                 End Set
             End Property
+            Private _DrawingNo As String
+            Public Property DrawingNo() As String
+                Get
+                    Return _DrawingNo
+                End Get
+                Set(ByVal value As String)
+                    _DrawingNo = value
+                End Set
+            End Property
+            Private _DrawingName As String
+            Public Property DrawingName() As String
+                Get
+                    Return _DrawingName
+                End Get
+                Set(ByVal value As String)
+                    _DrawingName = value
+                End Set
+            End Property
             Public Class cl_Parent
                 Public PartNo As String
                 Public Nomenclature As String
             End Class
+
+            Public ParentsDashNos As New List(Of String)
+
         End Class
         ''' <summary>
-        ''' 
+        '''
         ''' </summary>
         ''' <returns></returns>
         Public Function PartsList() As List(Of cl_PartsList)
-            Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList)
-            Dim item As Integer
+            Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList), row As Integer, column As Integer, item As Integer
+            Dim tempParentDasNos As New List(Of String)
 
             Dim Active2DTable As DrawingTable
             Active2DTable = Select2DTable()
 
-            For item = 1 To Active2DTable.NumberOfRows
-                cl_PL = New cl_PartsList
 
-                cl_PL.PartNo = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 3)
-                cl_PL.ItemNo = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns)
-                cl_PL.Material = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 1)
-                cl_PL.Nomenclature = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 2)
-                cl_PL.Quantity = Active2DTable.GetCellString(item, Active2DTable.NumberOfColumns - 4)
 
-                oPartsList.Add(cl_PL)
 
-            Next item
+
+            Dim cellValue1 As String
+
+            Dim cellValue As String
+            cellValue = Active2DTable.GetCellString(1, 1)
+
+            'MsgBox(cellValue)
+
+            Dim ParentsDashNos As New List(Of String)
+
+            For column = 1 To Active2DTable.NumberOfColumns
+
+                'Dim cellValue As String
+                cellValue = Active2DTable.GetCellString(Active2DTable.NumberOfRows - 1, column)
+
+                If IsItAValidParentDashNo(cellValue.ToString) = True Then
+                    ParentsDashNos.Add(Trim(cellValue.ToString))
+                End If
+            Next column
+
+            For row = 1 To Active2DTable.NumberOfRows
+
+                If IsNumeric(Trim(Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns))) Then
+
+                    cl_PL = New cl_PartsList
+
+                    cl_PL.PartNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 3).ToString
+                    cl_PL.ItemNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns)
+                    cl_PL.Material = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 1).ToString
+                    cl_PL.Nomenclature = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 2)
+                    'cl_PL.Quantity = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 4)
+
+                    'item = 1
+                    'row = 1
+                    For item = 0 To ParentsDashNos.Count - 1
+                        'Dim cellValue As String
+                        'cellValue = Active2DTable.GetCellString(0, 0)
+                        'cellValue = vbNullString
+
+                        cellValue1 = Active2DTable.GetCellString(row, item + 1)
+                        'MsgBox(Active2DTable.GetCellString(row, item + 1))
+                        'MsgBox(cellValue1)
+                        'cellValue = Active2DTable.GetCellString(row, item + 1)
+
+                        If IsNumeric(cellValue1) = True Then
+                            cl_PL.Quantity = cellValue1
+                            cl_PL.ParentDashNo = ParentsDashNos(item)
+
+                            oPartsList.Add(cl_PL)
+
+                            'MsgBox(cl_PL.Quantity & " " & cl_PL.ParentsDashNos(item))
+                        End If
+
+                    Next item
+
+                    'oPartsList.Add(cl_PL)
+
+                End If
+            Next row
+            'cellValue = Active2DTable.GetCellString(1, 1)
+            'MsgBox(cellValue)
+            'cellValue = Active2DTable.GetCellString(1, 1)
             cl_PL = Nothing
-
             Return oPartsList
+        End Function
+        Function IsItAValidParentDashNo(ParentDashNo As Object) As Boolean
+            ParentDashNo = Trim(ParentDashNo)
+
+            If Len(ParentDashNo) = 4 Then
+                If Left(ParentDashNo, 1) = "-" Then
+                    If IsNumeric(Mid(ParentDashNo, 2, 3)) = True Then
+                        If Mid(ParentDashNo, 2, 1) = "5" Or Mid(ParentDashNo, 2, 1) = "6" Or Mid(ParentDashNo, 2, 1) = "7" Then
+                            Return True
+                            Exit Function
+                        End If
+                    End If
+                End If
+            End If
+            Return False
         End Function
         Public Function GetDrawingDocument() As DrawingDocument
             oCATIA = GetCATIA()
@@ -692,7 +543,7 @@ Public Class Cl_CATIA
             On Error Resume Next
             MyDrawingDocument = oCATIA.ActiveDocument
             If MyDrawingDocument Is Nothing Or Err.Number <> 0 Then
-                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "in the Active session", vbCritical, "Open a Drawing")
+                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "In the Active session", vbCritical, "Open a Drawing")
                 Environment.Exit(0)
             End If
             GetDrawingDocument = MyDrawingDocument
@@ -797,11 +648,6 @@ Public Class Cl_CATIA
             'Next k
 
             ''Last value
-
-
-
-
-
 
             ''For Each Note In NotesCollection
             ''Cells(i, 26) = Note
@@ -908,7 +754,6 @@ Public Class Cl_CATIA
                 End If
             Next oDrawingSheet
 
-
         End Sub
 
         'Sub AddRevisionBalloon(TableNotes As ListObject)
@@ -921,7 +766,6 @@ Public Class Cl_CATIA
 
         '    Dim oDrawingDocument As DrawingDocument
         '    oDrawingDocument = CATIA.ActiveDocument
-
 
         '    Dim oDrawingSheets As DrawingSheets
         '    oDrawingSheets = oDrawingDocument.Sheets
@@ -978,15 +822,13 @@ Public Class Cl_CATIA
             Dim ActiveDrawingDocument As DrawingDocument
             'Set ActiveDwgDocument = CATIA.ActiveDocument
 
-
             On Error Resume Next
             'Set oDrawingDocument = CATIA.ActiveDocument
             ActiveDrawingDocument = CATIA.ActiveDocument
             If Err.Number <> 0 Then
-                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "in the Active session", vbCritical, "Open a Drawing")
+                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "In the Active session", vbCritical, "Open a Drawing")
                 Exit Function
             End If
-
 
             Dim What(2) 'As String
             What(0) = "DrawingTable"
@@ -997,7 +839,6 @@ Public Class Cl_CATIA
             UserSel = CATIA.ActiveDocument.Selection
             UserSel.Clear()
 
-
             Dim e 'As String
             e = UserSel.SelectElement3(What, "Select a Drawing Element", True, 2, False)
 
@@ -1007,7 +848,6 @@ Public Class Cl_CATIA
             'DrawingObject.X = 0 + 28
             'DrawingObject.Y = 0 + 156
             UserSel.Clear()
-
 
             Dim DrawingZoneLetter(6, 2) As String
             Dim DrawingZoneNumber(8, 2) As String
@@ -1069,9 +909,6 @@ Public Class Cl_CATIA
                             If InStr(oDrawingView.Name, "EC_") = 0 And oDrawingView.Name <> "Gen_Tol_A0&J2" And InStr(UCase(oDrawingView.Name), "NOTE") = 0 And oDrawingView.Texts.Count > 0 Then
                                 Dim i As Integer
 
-
-
-
                                 '                        Dim SplittedPartNo() As String
                                 '
                                 Dim Callout
@@ -1111,12 +948,10 @@ Public Class Cl_CATIA
                 Next oDrawingView
             Next oDrawingSheet
 
-
             'i = 0
 
             'Dim XLTable3D As Range
             'XLTable3D = ActiveSheet.ListObjects("Table3D").DataBodyRange
-
 
             'On Error Resume Next
             'XLTable3D.Delete()
@@ -1142,7 +977,6 @@ Public Class Cl_CATIA
         '            Dim CATIA As Object, oDrawingDocument As DrawingDocument
         '            CATIA = GetCATIA()
         '            oDrawingDocument = GetCATIADrawingDocument
-
 
         '            Dim oRow As Range
         '            Dim i As Integer
@@ -1193,7 +1027,6 @@ Public Class Cl_CATIA
 
         '                '    i = i + 1
 
-
         '            Next
 
         '            On Error Resume Next
@@ -1208,7 +1041,6 @@ Public Class Cl_CATIA
         '            ActiveSheet.Shapes.Range(Array("2DPartNo")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
         '            ActiveSheet.Shapes.Range(Array("2DDescription")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
         '        End Sub
-
 
     End Class
     Public Class UDF

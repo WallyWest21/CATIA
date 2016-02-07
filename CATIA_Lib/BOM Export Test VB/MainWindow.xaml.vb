@@ -6,6 +6,7 @@
 
         'PartNumber.Text = oProduct.SelectSingle3DProduct
         MsgBox(oDrawing.PartsList.Item(1).PartNo)
+        MsgBox(oDrawing.PartsList.Item(1).PartNo)
         'MsgBox(oProduct.PartsList.Item(0).PartNo)
     End Sub
 

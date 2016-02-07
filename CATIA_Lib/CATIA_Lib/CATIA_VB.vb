@@ -447,8 +447,8 @@ Public Class Cl_CATIA
         ''' </summary>
         ''' <returns></returns>
         Public Function PartsList() As List(Of cl_PartsList)
-            Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList), row As Integer, column As Integer, item As Integer
-            Dim tempParentDasNos As New List(Of String)
+            Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList), row As Integer, column As Integer, item As Integer, newitem As Integer
+            Dim tempParentDasNosList As New List(Of String), tempQtyList As New List(Of String)
 
             Dim Active2DTable As DrawingTable
             Active2DTable = Select2DTable()
@@ -481,6 +481,8 @@ Public Class Cl_CATIA
                 If IsNumeric(Trim(Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns))) Then
 
                     cl_PL = New cl_PartsList
+                    tempParentDasNosList = New List(Of String)
+                    tempQtyList = New List(Of String)
 
                     cl_PL.PartNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 3).ToString
                     cl_PL.ItemNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns)
@@ -491,6 +493,9 @@ Public Class Cl_CATIA
                     'item = 1
                     'row = 1
                     For item = 0 To ParentsDashNos.Count - 1
+
+
+
                         'Dim cellValue As String
                         'cellValue = Active2DTable.GetCellString(0, 0)
                         'cellValue = vbNullString
@@ -501,17 +506,34 @@ Public Class Cl_CATIA
                         'cellValue = Active2DTable.GetCellString(row, item + 1)
 
                         If IsNumeric(cellValue1) = True Then
-                            cl_PL.Quantity = cellValue1
-                            cl_PL.ParentDashNo = ParentsDashNos(item)
 
-                            oPartsList.Add(cl_PL)
+                            tempQtyList.Add(cellValue1)
+                            tempParentDasNosList.Add(ParentsDashNos(item))
+                            'cl_PL.Quantity = cellValue1
+                            'cl_PL.ParentDashNo = ParentsDashNos(item)
+
+                            'oPartsList.Add(cl_PL)
 
                             'MsgBox(cl_PL.Quantity & " " & cl_PL.ParentsDashNos(item))
                         End If
 
+
+
                     Next item
 
-                    'oPartsList.Add(cl_PL)
+                    For newitem = 0 To tempParentDasNosList.Count - 1
+                        cl_PL.Quantity = tempQtyList(newitem)
+                        cl_PL.ParentDashNo = tempParentDasNosList(newitem)
+                        cl_PL.PartNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 3).ToString
+                        cl_PL.ItemNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns)
+                        cl_PL.Material = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 1).ToString
+                        cl_PL.Nomenclature = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 2)
+
+                        oPartsList.Add(cl_PL)
+
+                        cl_PL = New cl_PartsList
+                    Next newitem
+
 
                 End If
             Next row

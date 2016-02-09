@@ -161,10 +161,10 @@ Public Class Cl_CATIA
                 End Try
 
             End Sub
-            Public Function SelectMultiple3DProducts() As List(Of Products)
+            Public Function SelectMultiple3DProducts() As List(Of Product)
 
                 'Dim SelectedProducts As Products
-                Dim ActiveProductDocument As ProductDocument, ActiveProducts As Products
+                Dim ActiveProductDocument As ProductDocument, ActiveProducts As New List(Of Product)
                 Dim counter As Integer
 
                 ActiveProductDocument = GetProductDocument()
@@ -172,7 +172,7 @@ Public Class Cl_CATIA
                 Dim What(0) As Object
                 What(0) = "Product"
 
-                Dim SelectedProducts As SelectedElement
+                Dim SelectedProducts As Selection
                 SelectedProducts = oCATIA.ActiveDocument.Selection
                 SelectedProducts.Clear()
 
@@ -425,6 +425,15 @@ Public Class Cl_CATIA
                     _DrawingNo = value
                 End Set
             End Property
+            Private _ParentPartNo As String
+            Public Property ParentPartNo() As String
+                Get
+                    Return DrawingNo + ParentDashNo
+                End Get
+                Set(ByVal value As String)
+                    _ParentPartNo = value
+                End Set
+            End Property
             Private _DrawingName As String
             Public Property DrawingName() As String
                 Get
@@ -449,97 +458,77 @@ Public Class Cl_CATIA
         Public Function PartsList() As List(Of cl_PartsList)
             Dim cl_PL As New cl_PartsList, oPartsList As New List(Of cl_PartsList), row As Integer, column As Integer, item As Integer, newitem As Integer
             Dim tempParentDasNosList As New List(Of String), tempQtyList As New List(Of String)
+            Dim cellValue1 As String, cellValue As String
 
-            Dim Active2DTable As DrawingTable
-            Active2DTable = Select2DTable()
+            Dim Active2DTablesList As List(Of DrawingTable)
+            Dim Active2DTable As DrawingTable 'One-based index where cell (1,1) is at the top left of the table
+
+            Active2DTablesList = Select2DTable()
 
 
 
 
+            'Active2DTable = Active2DTablesList(0)
 
-            Dim cellValue1 As String
 
-            Dim cellValue As String
-            cellValue = Active2DTable.GetCellString(1, 1)
-
-            'MsgBox(cellValue)
 
             Dim ParentsDashNos As New List(Of String)
 
-            For column = 1 To Active2DTable.NumberOfColumns
+            For column = 1 To Active2DTablesList(0).NumberOfColumns
 
-                'Dim cellValue As String
-                cellValue = Active2DTable.GetCellString(Active2DTable.NumberOfRows - 1, column)
+                cellValue = Active2DTablesList(0).GetCellString(Active2DTablesList(0).NumberOfRows - 1, column)
 
                 If IsItAValidParentDashNo(cellValue.ToString) = True Then
                     ParentsDashNos.Add(Trim(cellValue.ToString))
                 End If
             Next column
 
-            For row = 1 To Active2DTable.NumberOfRows
 
-                If IsNumeric(Trim(Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns))) Then
+            For Each Active2DTable In Active2DTablesList
+                For row = 1 To Active2DTable.NumberOfRows
 
-                    cl_PL = New cl_PartsList
-                    tempParentDasNosList = New List(Of String)
-                    tempQtyList = New List(Of String)
+                    If IsNumeric(Trim(Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns))) Then
 
-                    cl_PL.PartNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 3).ToString
-                    cl_PL.ItemNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns)
-                    cl_PL.Material = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 1).ToString
-                    cl_PL.Nomenclature = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 2)
-                    'cl_PL.Quantity = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 4)
-
-                    'item = 1
-                    'row = 1
-                    For item = 0 To ParentsDashNos.Count - 1
-
-
-
-                        'Dim cellValue As String
-                        'cellValue = Active2DTable.GetCellString(0, 0)
-                        'cellValue = vbNullString
-
-                        cellValue1 = Active2DTable.GetCellString(row, item + 1)
-                        'MsgBox(Active2DTable.GetCellString(row, item + 1))
-                        'MsgBox(cellValue1)
-                        'cellValue = Active2DTable.GetCellString(row, item + 1)
-
-                        If IsNumeric(cellValue1) = True Then
-
-                            tempQtyList.Add(cellValue1)
-                            tempParentDasNosList.Add(ParentsDashNos(item))
-                            'cl_PL.Quantity = cellValue1
-                            'cl_PL.ParentDashNo = ParentsDashNos(item)
-
-                            'oPartsList.Add(cl_PL)
-
-                            'MsgBox(cl_PL.Quantity & " " & cl_PL.ParentsDashNos(item))
-                        End If
-
-
-
-                    Next item
-
-                    For newitem = 0 To tempParentDasNosList.Count - 1
-                        cl_PL.Quantity = tempQtyList(newitem)
-                        cl_PL.ParentDashNo = tempParentDasNosList(newitem)
+                        cl_PL = New cl_PartsList
+                        tempParentDasNosList = New List(Of String)
+                        tempQtyList = New List(Of String)
+                        cl_PL.DrawingNo = "B471356"
                         cl_PL.PartNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 3).ToString
                         cl_PL.ItemNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns)
                         cl_PL.Material = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 1).ToString
                         cl_PL.Nomenclature = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 2)
 
-                        oPartsList.Add(cl_PL)
+                        For item = 0 To ParentsDashNos.Count - 1
 
-                        cl_PL = New cl_PartsList
-                    Next newitem
+                            cellValue1 = Active2DTable.GetCellString(row, item + 1)
+
+                            If (cellValue1) <> vbNullString Then
+                                tempQtyList.Add(cellValue1)
+                                tempParentDasNosList.Add(ParentsDashNos(item))
+                            End If
+
+                        Next item
+
+                        For newitem = 0 To tempParentDasNosList.Count - 1
+                            cl_PL.Quantity = tempQtyList(newitem)
+                            cl_PL.ParentDashNo = tempParentDasNosList(newitem)
+                            cl_PL.PartNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 3).ToString
+                            cl_PL.ItemNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns)
+                            cl_PL.Material = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 1).ToString
+                            cl_PL.Nomenclature = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 2)
+                            cl_PL.DrawingNo = "B471356"
+
+                            oPartsList.Add(cl_PL)
+
+                            cl_PL = New cl_PartsList
+                        Next newitem
 
 
-                End If
-            Next row
-            'cellValue = Active2DTable.GetCellString(1, 1)
-            'MsgBox(cellValue)
-            'cellValue = Active2DTable.GetCellString(1, 1)
+                    End If
+                Next row
+
+
+            Next
             cl_PL = Nothing
             Return oPartsList
         End Function
@@ -558,6 +547,9 @@ Public Class Cl_CATIA
             End If
             Return False
         End Function
+        Function IsItAValidFirstDwgTable() As Boolean
+            Return False
+        End Function
         Public Function GetDrawingDocument() As DrawingDocument
             oCATIA = GetCATIA()
             Dim MyDrawingDocument As DrawingDocument
@@ -570,8 +562,8 @@ Public Class Cl_CATIA
             End If
             GetDrawingDocument = MyDrawingDocument
         End Function
-        Public Function Select2DTable() As DrawingTable
-            Dim ActiveDrawingDocument As DrawingDocument, ActiveTable As DrawingTable, SelectedTable As Selection, e As String
+        Public Function Select2DTable() As List(Of DrawingTable)
+            Dim ActiveDrawingDocument As DrawingDocument, ActiveTablesList As New List(Of DrawingTable), SelectedTable As Selection, e As String
             Dim What(0)
 
             oCATIA = GetCATIA()
@@ -583,10 +575,14 @@ Public Class Cl_CATIA
             What(0) = "DrawingTable"
             e = SelectedTable.SelectElement3(What, "Select a DrawingTable", True, CATMultiSelectionMode.CATMultiSelTriggWhenUserValidatesSelection, False)
 
-            ActiveTable = SelectedTable.Item(1).Value
+            Dim table As Integer
+            For table = 1 To SelectedTable.Count
+                ActiveTablesList.Add(SelectedTable.Item(table).Value)
+            Next table
+
             SelectedTable.Clear()
 
-            Select2DTable = ActiveTable
+            Select2DTable = ActiveTablesList
 
         End Function
         Sub Clean2DTable()

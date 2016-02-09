@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BOM_Export_Test_VB"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525" SizeToContent="WidthAndHeight">
     <Grid>
         <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Height="42" Margin="366,101,0,0" VerticalAlignment="Top" Width="81"/>
         <TextBlock x:Name="PartNumber" HorizontalAlignment="Left" Height="34" Margin="18,109,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="219"/>
-        <Button x:Name="button1" Content="3D" HorizontalAlignment="Left" Height="54" Margin="202,196,0,0" VerticalAlignment="Top" Width="95"/>
+        <Button x:Name="button1" Content="3D" HorizontalAlignment="Left" Height="54" Margin="180,89,0,0" VerticalAlignment="Top" Width="95"/>
+        <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Height="Auto" Margin="18,186,0,0" VerticalAlignment="Top" Width="Auto"/>
 
     </Grid>
 </Window>

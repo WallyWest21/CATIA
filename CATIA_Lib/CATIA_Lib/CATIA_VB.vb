@@ -6,7 +6,7 @@ Imports DrawingSheet = DRAFTINGITF.DrawingSheet
 'Imports DRAFTINGITF.IID_DraftingInterfaces
 Imports DRAFTINGITF
 Imports DRAFTINGITF.CatTextProperty
-'Imports DRAFTINGITF.CatTablePosition
+Imports DRAFTINGITF.CatTablePosition
 
 Imports MECMOD
 
@@ -23,7 +23,9 @@ Public Class Cl_CATIA
         oCATIA = GetObject(, "CATIA.Application")
         If oCATIA Is Nothing Or Err.Number <> 0 Then
             MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
-            Environment.Exit(0)
+            Err.Clear()
+            Exit Function
+            'Environment.Exit(0)
             '       Set CATIA = CreateObject("CATIA.Application")
             '       CATIA.Visible = True
         End If
@@ -31,22 +33,24 @@ Public Class Cl_CATIA
         GetCATIA = oCATIA
     End Function
     Public Function IsCATIAOpen() As Boolean
-        Try
-            oCATIA = GetObject(, "CATIA.Application")
-        Catch ex As Exception
-            MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
-            Return False
-            Exit Function
-        End Try
+        'Try
+        '    oCATIA = GetObject(, "CATIA.Application")
+        'Catch ex As Exception
+        '    MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
+        '    Return False
+        '    Exit Function
+        'End Try
 
         If oCATIA Is Nothing Or Err.Number <> 0 Then
             MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
+            Err.Clear()
             Return False
             Exit Function            '       Set CATIA = CreateObject("CATIA.Application")
             '       CATIA.Visible = True
         Else
             Return True
         End If
+        'Return True
 
     End Function
     Public Class _3D
@@ -54,7 +58,6 @@ Public Class Cl_CATIA
             Public Sub test()
                 MsgBox("hi")
             End Sub
-            Public Part As String
             Function GetProductDocument() As ProductDocument
                 oCATIA = GetCATIA()
                 Dim MyProductDocument As ProductDocument
@@ -64,9 +67,25 @@ Public Class Cl_CATIA
                 If MyProductDocument Is Nothing Or Err.Number <> 0 Then
                     ' MsgBox "No CATIA Active Document found "
                     MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Product" & vbCrLf & "in the Active session", vbCritical, "Open a Product")
+                    Err.Clear()
                     Environment.Exit(0)
                 End If
                 GetProductDocument = MyProductDocument
+            End Function
+            Public Function IsAProductDocumentOpen() As Boolean
+                oCATIA = GetCATIA()
+                Dim MyProductDocument As ProductDocument
+
+                On Error Resume Next
+                MyProductDocument = oCATIA.ActiveDocument
+                If MyProductDocument Is Nothing Or Err.Number <> 0 Then
+                    ' MsgBox "No CATIA Active Document found "
+                    MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Product" & vbCrLf & "in the Active session", vbCritical, "Open a Product")
+                    Err.Clear()
+                    Return False
+                    Exit Function
+                End If
+                Return True
             End Function
             Public Function SelectSingle3DProduct() As Product
                 Dim ActiveProductDocument As ProductDocument, ActiveProduct As Product
@@ -179,8 +198,8 @@ Public Class Cl_CATIA
                 Dim e As String
                 e = SelectedProducts.SelectElement3(What, "Select a Product or a Component", False, 2, False)
 
-                For counter = 1 To SelectedProducts.count
-                    ActiveProducts.add(SelectedProducts.Item(counter).Value)
+                For counter = 1 To SelectedProducts.Count
+                    ActiveProducts.Add(SelectedProducts.Item(counter).Value)
                 Next
 
                 SelectedProducts.Clear()
@@ -558,9 +577,28 @@ Public Class Cl_CATIA
             MyDrawingDocument = oCATIA.ActiveDocument
             If MyDrawingDocument Is Nothing Or Err.Number <> 0 Then
                 MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "In the Active session", vbCritical, "Open a Drawing")
+                Err.Clear()
                 Environment.Exit(0)
             End If
             GetDrawingDocument = MyDrawingDocument
+        End Function
+        Public Function IsADrawingDocumentOpen() As Boolean
+
+
+            oCATIA = GetCATIA()
+            Dim MyDrawingDocument As DrawingDocument
+
+            On Error Resume Next
+            MyDrawingDocument = oCATIA.ActiveDocument
+            If MyDrawingDocument Is Nothing Or Err.Number <> 0 Then
+                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Drawing" & vbCrLf & "In the Active session", vbCritical, "Open a Drawing")
+                Err.Clear()
+                Return False
+                Exit Function
+            End If
+            Return True
+
+
         End Function
         Public Function Select2DTable() As List(Of DrawingTable)
             Dim ActiveDrawingDocument As DrawingDocument, ActiveTablesList As New List(Of DrawingTable), SelectedTable As Selection, e As String
@@ -1059,6 +1097,52 @@ Public Class Cl_CATIA
         '            ActiveSheet.Shapes.Range(Array("2DPartNo")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_NUMBER").Value
         '            ActiveSheet.Shapes.Range(Array("2DDescription")).TextFrame2.TextRange.Characters.Text = oDrawingDocument.Parameters.Item("DRAWING_TITLE").Value
         '        End Sub
+
+
+        Public Sub ExportToDrawing(otherlist As List(Of Object))
+            Dim ActiveDrawingDocument As DrawingDocument, NumberOfRows As Integer, NumberOfColumns As Integer
+
+            oCATIA = GetCATIA()
+            ActiveDrawingDocument = GetDrawingDocument()
+
+            Dim oDrwTables As DrawingTables = ActiveDrawingDocument.Sheets.ActiveSheet.Views.ActiveView.Tables          'Dim oDrwSheets As DrawingSheets = ActiveDrawingDocument.Sheets, oDrwSheet As DrawingSheet = oDrwSheets.ActiveSheet, oDrwView As DrawingView = oDrwSheet.Views.ActiveView
+            Dim oDrwTable As DrawingTable
+
+            NumberOfRows = otherlist.Count
+            NumberOfColumns = 6
+            oDrwTable = oDrwTables.Add(896.650497436523, 126.999582529068, NumberOfRows, NumberOfColumns, 13.094, 20)  ' double  iPositionX,double  iPositionY, long  iNumberOfRow, long  iNumberOfColumn, double  iRowHeight, double  iColumnWidth)
+
+            oDrwTable.Name = "Parts List"
+            oDrwTable.MergeCells(NumberOfRows, NumberOfColumns - 4, 1, 5)
+            'Set the column sizes
+            oDrwTable.SetColumnSize(1, 14.144)
+            oDrwTable.SetColumnSize(2, 14.144)
+            oDrwTable.SetColumnSize(3, 50.576)
+            oDrwTable.SetColumnSize(4, 99.153)
+            oDrwTable.SetColumnSize(5, 41.468)
+            oDrwTable.SetColumnSize(6, 17.18)
+
+            oDrwTable.AnchorPoint = CatTableBottomLeft
+
+            oDrwTable.SetCellString(NumberOfRows, NumberOfColumns - 4, "PARTS LIST")
+            oDrwTable.SetCellAlignment(NumberOfRows, NumberOfColumns - 4, CatTableMiddleCenter)
+
+            oDrwTable.SetCellString(NumberOfRows - 1, NumberOfColumns, "ITEM" & vbLf & "NO.")
+            oDrwTable.SetCellAlignment(NumberOfRows - 1, NumberOfColumns, CatTableMiddleCenter)
+
+            oDrwTable.SetCellString(NumberOfRows - 1, NumberOfColumns - 1, "MATERIAL" & vbLf & "SPECIFICATION")
+            oDrwTable.SetCellAlignment(NumberOfRows - 1, NumberOfColumns - 1, CatTableMiddleCenter)
+
+            oDrwTable.SetCellString(NumberOfRows - 1, NumberOfColumns - 2, "NOMENCLATURE" & vbLf & "OR DESCRIPTION")
+            oDrwTable.SetCellAlignment(NumberOfRows - 1, NumberOfColumns - 2, CatTableMiddleCenter)
+
+            oDrwTable.SetCellString(NumberOfRows - 1, NumberOfColumns - 3, "PART OR" & vbLf & "IDENTIFYIONG NO.")
+            oDrwTable.SetCellAlignment(NumberOfRows - 1, NumberOfColumns - 3, CatTableMiddleCenter)
+
+            oDrwTable.SetCellString(NumberOfRows - 1, NumberOfColumns - 4, "CAGE" & vbLf & "CODE")
+            oDrwTable.SetCellAlignment(NumberOfRows - 1, NumberOfColumns - 4, CatTableMiddleCenter)
+        End Sub
+
 
     End Class
     Public Class UDF

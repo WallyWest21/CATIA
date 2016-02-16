@@ -16,6 +16,8 @@ Imports ProductStructureTypeLib.CatWorkModeType 'apply design mode
 Imports INFITF
 Imports INFITF.CATMultiSelectionMode
 Imports System.Linq
+Imports HybridShapeTypeLib
+'Imports PARTITF
 
 Public Class Cl_CATIA
     Shared oCATIA As INFITF.Application
@@ -312,7 +314,7 @@ Public Class Cl_CATIA
             End Class
         End Class
         Public Class oPart
-            Function GetPartDocument() As PartDocument
+            Public Function GetPartDocument() As PartDocument
                 oCATIA = GetCATIA()
                 Dim MyPartDocument As PartDocument
 
@@ -1146,7 +1148,586 @@ Public Class Cl_CATIA
 
     End Class
     Public Class UDF
+
         Public Class Panel
+            Dim oPart As New _3D.oPart
+            Public Sub Create()
+                Dim ActivePartDocument As PartDocument
+                ActivePartDocument = oPart.GetPartDocument()
+
+                Dim reference1 As Reference
+                Dim theSketch As Sketch
+
+                Dim ooPart As Part
+                ooPart = ActivePartDocument.Part
+
+                'Dim oBody As Body
+                'oBody = ooPart.Bodies.Item("PartBody")
+
+                'Dim oSketch As Sketch
+                'oSketch = oBody.Sketches.Item("Sketch.1")
+
+                Dim oPad As PARTITF.Pad
+                oPad = ooPart.ShapeFactory.AddNewPad(CreateAnotherSketch, 20.0)
+
+                ooPart.Update()
+
+            End Sub
+
+            Public Function CreateSketch() As Sketch
+
+                Dim Part1 As MECMOD.Part
+                'Dim reference1 As INFITF.Reference
+                Dim theSketch As MECMOD.Sketch
+
+                Dim ActivePartDocument As PartDocument
+                'ActivePartDocument = oPart.GetPartDocument()
+
+                Dim hybridBodies1 As HybridBodies
+
+
+                Dim hybridBody1 As HybridBody
+
+                Try
+                    ActivePartDocument = oPart.GetPartDocument()
+                    Part1 = ActivePartDocument.Part
+                    hybridBodies1 = Part1.HybridBodies
+                    hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+                    Dim hybridShapes1 As HybridShapes
+                    hybridShapes1 = hybridBody1.HybridShapes
+
+                    Dim reference1 As Reference
+                    reference1 = hybridShapes1.Item("Plane.4")
+
+                    'reference1 = Part1.OriginElements.PlaneXY
+                    theSketch = Part1.Bodies.Item("PartBody").Sketches.Add(reference1)
+
+                    Dim arrayOfVariantOfDouble1(8)
+                    arrayOfVariantOfDouble1(0) = 0.0
+                    arrayOfVariantOfDouble1(1) = 0.0
+                    arrayOfVariantOfDouble1(2) = 0.0
+                    arrayOfVariantOfDouble1(3) = 1.0
+                    arrayOfVariantOfDouble1(4) = 0.0
+                    arrayOfVariantOfDouble1(5) = 0.0
+                    arrayOfVariantOfDouble1(6) = 0.0
+                    arrayOfVariantOfDouble1(7) = 1.0
+                    arrayOfVariantOfDouble1(8) = 0.0
+                    theSketch.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
+
+
+                    Dim FirstPoint As Point2D
+                    FirstPoint = CreateAPoint(theSketch, -150, 150)
+
+                    Dim SecondPoint As Point2D
+                    SecondPoint = CreateAPoint(theSketch, 150, 150)
+
+                    Dim ThirdPoint As Point2D
+                    ThirdPoint = CreateAPoint(theSketch, 150, -150)
+
+                    Dim FourthPoint As Point2D
+                    FourthPoint = CreateAPoint(theSketch, -150, -150)
+
+                    CreateALine(theSketch, FirstPoint, SecondPoint).ReportName = 1
+                    CreateALine(theSketch, SecondPoint, ThirdPoint).ReportName = 2
+                    CreateALine(theSketch, ThirdPoint, FourthPoint).ReportName = 3
+                    CreateALine(theSketch, FourthPoint, FirstPoint).ReportName = 4
+
+                    theSketch.CloseEdition()
+
+                    Part1.InWorkObject = hybridBody1
+
+                    'Part1.Update()
+
+
+                    'Part1.InWorkObject = theSketch
+                    Part1.UpdateObject(theSketch)
+                    Return theSketch
+                Catch ex As Exception
+                    MsgBox(" Failed to create sketch", MsgBoxStyle.Critical)
+                    MsgBox(ex.Message(), MsgBoxStyle.Critical)
+                    Return Nothing
+                End Try
+
+            End Function
+            Public Sub CreatePlanefromOffset()
+                Dim ActivePartDocument As PartDocument
+                Dim Part1 As Part
+
+                ActivePartDocument = oPart.GetPartDocument()
+                Part1 = ActivePartDocument.Part
+
+                Dim hybridShapeFactory1 As HybridShapeFactory
+                hybridShapeFactory1 = Part1.HybridShapeFactory
+
+                Dim originElements1 As OriginElements
+                originElements1 = Part1.OriginElements
+
+                Dim hybridShapePlaneExplicit1 As HybridShapePlaneExplicit
+                hybridShapePlaneExplicit1 = originElements1.PlaneXY
+
+                Dim reference1 As Reference
+                reference1 = Part1.CreateReferenceFromObject(hybridShapePlaneExplicit1)
+
+                Dim hybridShapePlaneOffset1 As HybridShapePlaneOffset
+                hybridShapePlaneOffset1 = hybridShapeFactory1.AddNewPlaneOffset(reference1, 20.0, False)
+
+                Dim hybridBodies1 As HybridBodies
+                hybridBodies1 = Part1.HybridBodies
+
+                Dim hybridBody1 As HybridBody
+                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+
+                hybridBody1.AppendHybridShape(hybridShapePlaneOffset1)
+
+                Part1.InWorkObject = hybridShapePlaneOffset1
+
+                Part1.Update()
+
+
+            End Sub
+
+            Function CreateAPoint(oSketch As Sketch, iX As Double, iY As Double) As Point2D
+                Dim ActivePartDocument As PartDocument, ooPart As Part, oFactory2D As Factory2D, oPoint As Point2D
+                Dim count = " count"
+                ActivePartDocument = oPart.GetPartDocument()
+                ooPart = ActivePartDocument.Part
+                oFactory2D = oSketch.OpenEdition
+
+                oPoint = oFactory2D.CreatePoint(iX, iY)
+                oPoint.ReportName = 5612
+                oPoint.Name = "First Point of many"
+                Dim coord
+                Dim coord1(2)
+                oPoint.GetCoordinates(coord1)
+                Return oPoint
+            End Function
+
+            Function CreateALine(oSketch As Sketch, StartPoint As Point2D, EndPoint As Point2D) As Line2D
+                Dim ActivePartDocument As PartDocument, ooPart As Part, oFactory2D As Factory2D, oLine As Line2D
+
+                ActivePartDocument = oPart.GetPartDocument()
+                ooPart = ActivePartDocument.Part
+                oFactory2D = oSketch.OpenEdition
+
+                Dim StartPointCoordinates(2)
+                Dim EndPointCoordinates(2)
+                StartPoint.GetCoordinates(StartPointCoordinates)
+                EndPoint.GetCoordinates(EndPointCoordinates)
+
+
+                oLine = oFactory2D.CreateLine(StartPointCoordinates(0), StartPointCoordinates(1), EndPointCoordinates(0), EndPointCoordinates(1))
+
+
+                oLine.StartPoint = StartPoint
+                oLine.EndPoint = EndPoint
+                Return oLine
+            End Function
+
+
+            Public Sub Trapezoid()
+                Dim partDocument1 As PartDocument
+                partDocument1 = oPart.GetPartDocument()
+
+                Dim part1 As Part
+                part1 = partDocument1.Part
+
+                Dim hybridBodies1 As HybridBodies
+                hybridBodies1 = part1.HybridBodies
+
+                Dim hybridBody1 As HybridBody
+                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+
+                Dim sketches1 As Sketches
+                sketches1 = hybridBody1.HybridSketches
+
+                Dim originElements1 As OriginElements
+                originElements1 = part1.OriginElements
+
+                Dim reference1 As Reference
+                reference1 = originElements1.PlaneXY
+
+                Dim sketch1 As Sketch
+                sketch1 = sketches1.Add(reference1)
+
+                Dim arrayOfVariantOfDouble1(8)
+                arrayOfVariantOfDouble1(0) = 0#
+                arrayOfVariantOfDouble1(1) = 0#
+                arrayOfVariantOfDouble1(2) = 0#
+                arrayOfVariantOfDouble1(3) = 1.0#
+                arrayOfVariantOfDouble1(4) = 0#
+                arrayOfVariantOfDouble1(5) = 0#
+                arrayOfVariantOfDouble1(6) = 0#
+                arrayOfVariantOfDouble1(7) = 1.0#
+                arrayOfVariantOfDouble1(8) = 0#
+                Dim sketch1Variant
+                sketch1Variant = sketch1
+                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
+
+                part1.InWorkObject = sketch1
+
+                Dim factory2D1 As Factory2D
+                factory2D1 = sketch1.OpenEdition()
+
+                Dim geometricElements1 As GeometricElements
+                geometricElements1 = sketch1.GeometricElements
+
+                Dim axis2D1 As Axis2D
+                axis2D1 = geometricElements1.Item("AbsoluteAxis")
+
+                Dim line2D1 As Line2D
+                line2D1 = axis2D1.GetItem("HDirection")
+
+                line2D1.ReportName = 1
+
+                Dim line2D2 As Line2D
+                line2D2 = axis2D1.GetItem("VDirection")
+
+                line2D2.ReportName = 2
+
+                sketch1.CloseEdition()
+
+                part1.InWorkObject = hybridBody1
+
+                part1.Update()
+
+
+            End Sub
+
+            Public Function CreateAnotherSketch() As Sketch
+                Dim partDocument1 As PartDocument
+                partDocument1 = oPart.GetPartDocument
+
+                Dim part1 As Part
+                part1 = partDocument1.Part
+
+                Dim hybridBodies1 As HybridBodies
+                hybridBodies1 = part1.HybridBodies
+
+                Dim hybridBody1 As HybridBody
+                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+
+                Dim sketches1 As Sketches
+                sketches1 = hybridBody1.HybridSketches
+
+                Dim hybridShapes1 As HybridShapes
+                hybridShapes1 = hybridBody1.HybridShapes
+
+                Dim reference1 As Reference
+                reference1 = hybridShapes1.Item("Plane.4")
+
+                Dim sketch1 As Sketch
+                sketch1 = sketches1.Add(reference1)
+
+                Dim arrayOfVariantOfDouble1(8)
+                arrayOfVariantOfDouble1(0) = 0#
+                arrayOfVariantOfDouble1(1) = 0#
+                arrayOfVariantOfDouble1(2) = 20.0#
+                arrayOfVariantOfDouble1(3) = 1.0#
+                arrayOfVariantOfDouble1(4) = 0#
+                arrayOfVariantOfDouble1(5) = 0#
+                arrayOfVariantOfDouble1(6) = 0#
+                arrayOfVariantOfDouble1(7) = 1.0#
+                arrayOfVariantOfDouble1(8) = 0#
+                Dim sketch1Variant
+                sketch1Variant = sketch1
+                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
+
+                part1.InWorkObject = sketch1
+
+                Dim factory2D1 As Factory2D
+                factory2D1 = sketch1.OpenEdition()
+
+                Dim geometricElements1 As GeometricElements
+                geometricElements1 = sketch1.GeometricElements
+
+                Dim axis2D1 As Axis2D
+                axis2D1 = geometricElements1.Item("AbsoluteAxis")
+
+                Dim line2D1 As Line2D
+                line2D1 = axis2D1.GetItem("HDirection")
+
+                line2D1.ReportName = 1
+
+                Dim line2D2 As Line2D
+                line2D2 = axis2D1.GetItem("VDirection")
+
+                line2D2.ReportName = 2
+
+                Dim point2D1 As Point2D
+                point2D1 = factory2D1.CreatePoint(-121.914505, 137.569885)
+
+                point2D1.ReportName = 3
+
+                Dim point2D2 As Point2D
+                point2D2 = factory2D1.CreatePoint(149.082626, 137.569885)
+
+                point2D2.ReportName = 4
+
+                Dim line2D3 As Line2D
+                line2D3 = factory2D1.CreateLine(-121.914505, 137.569885, 149.082626, 137.569885)
+
+                line2D3.ReportName = 5
+
+                line2D3.StartPoint = point2D1
+
+                line2D3.EndPoint = point2D2
+
+                Dim point2D3 As Point2D
+                point2D3 = factory2D1.CreatePoint(149.082626, -121.943497)
+
+                point2D3.ReportName = 6
+
+                Dim line2D4 As Line2D
+                line2D4 = factory2D1.CreateLine(149.082626, 137.569885, 149.082626, -121.943497)
+
+                line2D4.ReportName = 7
+
+                line2D4.EndPoint = point2D2
+
+                line2D4.StartPoint = point2D3
+
+                Dim point2D4 As Point2D
+                point2D4 = factory2D1.CreatePoint(-121.914505, -121.943497)
+
+                point2D4.ReportName = 8
+
+                Dim line2D5 As Line2D
+                line2D5 = factory2D1.CreateLine(149.082626, -121.943497, -121.914505, -121.943497)
+
+                line2D5.ReportName = 9
+
+                line2D5.StartPoint = point2D3
+
+                line2D5.EndPoint = point2D4
+
+                Dim line2D6 As Line2D
+                line2D6 = factory2D1.CreateLine(-121.914505, -121.943497, -121.914505, 137.569885)
+
+                line2D6.ReportName = 10
+
+                line2D6.EndPoint = point2D4
+
+                line2D6.StartPoint = point2D1
+                sketch1.CloseEdition()
+
+                part1.InWorkObject = sketch1
+
+                part1.Update()
+                Return sketch1
+
+            End Function
+
+            Public Sub CreateACircle()
+                Dim partDocument1 As PartDocument
+                partDocument1 = oPart.GetPartDocument()
+
+                Dim part1 As Part
+                part1 = partDocument1.Part
+
+                Dim hybridBodies1 As HybridBodies
+                hybridBodies1 = part1.HybridBodies
+
+                Dim hybridBody1 As HybridBody
+                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+
+                Dim sketches1 As Sketches
+                sketches1 = hybridBody1.HybridSketches
+
+                Dim originElements1 As OriginElements
+                originElements1 = part1.OriginElements
+
+                Dim reference1 As Reference
+                reference1 = originElements1.PlaneXY
+
+                Dim sketch1 As Sketch
+                sketch1 = sketches1.Add(reference1)
+
+                Dim arrayOfVariantOfDouble1(8)
+                arrayOfVariantOfDouble1(0) = 0#
+                arrayOfVariantOfDouble1(1) = 0#
+                arrayOfVariantOfDouble1(2) = 0#
+                arrayOfVariantOfDouble1(3) = 1.0#
+                arrayOfVariantOfDouble1(4) = 0#
+                arrayOfVariantOfDouble1(5) = 0#
+                arrayOfVariantOfDouble1(6) = 0#
+                arrayOfVariantOfDouble1(7) = 1.0#
+                arrayOfVariantOfDouble1(8) = 0#
+
+                Dim sketch1Variant
+                sketch1Variant = sketch1
+                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
+
+                part1.InWorkObject = sketch1
+
+                Dim factory2D1 As Factory2D
+                factory2D1 = sketch1.OpenEdition()
+
+                Dim geometricElements1 As GeometricElements
+                geometricElements1 = sketch1.GeometricElements
+
+                Dim axis2D1 As Axis2D
+                axis2D1 = geometricElements1.Item("AbsoluteAxis")
+
+                Dim line2D1 As Line2D
+                line2D1 = axis2D1.GetItem("HDirection")
+
+                line2D1.ReportName = 1
+
+                Dim line2D2 As Line2D
+                line2D2 = axis2D1.GetItem("VDirection")
+
+                line2D2.ReportName = 2
+
+                Dim point2D1 As Point2D
+                point2D1 = factory2D1.CreatePoint(18.759615, 10.60326)
+
+                point2D1.ReportName = 3
+
+                Dim circle2D1 As Circle2D
+                circle2D1 = factory2D1.CreateClosedCircle(18.759615, 10.60326, 24.764466)
+
+                circle2D1.CenterPoint = point2D1
+
+                circle2D1.ReportName = 4
+
+                sketch1.CloseEdition()
+
+                part1.InWorkObject = hybridBody1
+
+                part1.Update()
+
+            End Sub
+
+            Public Function FctCreateACircle() As Sketch
+                Dim partDocument1 As PartDocument
+                partDocument1 = oPart.GetPartDocument()
+
+                Dim part1 As Part
+                part1 = partDocument1.Part
+
+                Dim hybridBodies1 As HybridBodies
+                hybridBodies1 = part1.HybridBodies
+
+                Dim hybridBody1 As HybridBody
+                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+
+                Dim sketches1 As Sketches
+                sketches1 = hybridBody1.HybridSketches
+
+                Dim originElements1 As OriginElements
+                originElements1 = part1.OriginElements
+
+                Dim reference1 As Reference
+                reference1 = originElements1.PlaneXY
+
+                Dim sketch1 As Sketch
+                sketch1 = sketches1.Add(reference1)
+
+                Dim arrayOfVariantOfDouble1(8)
+                arrayOfVariantOfDouble1(0) = 0#
+                arrayOfVariantOfDouble1(1) = 0#
+                arrayOfVariantOfDouble1(2) = 0#
+                arrayOfVariantOfDouble1(3) = 1.0#
+                arrayOfVariantOfDouble1(4) = 0#
+                arrayOfVariantOfDouble1(5) = 0#
+                arrayOfVariantOfDouble1(6) = 0#
+                arrayOfVariantOfDouble1(7) = 1.0#
+                arrayOfVariantOfDouble1(8) = 0#
+
+                Dim sketch1Variant
+                sketch1Variant = sketch1
+                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
+
+                part1.InWorkObject = sketch1
+
+                Dim factory2D1 As Factory2D
+                factory2D1 = sketch1.OpenEdition()
+
+                Dim geometricElements1 As GeometricElements
+                geometricElements1 = sketch1.GeometricElements
+
+                Dim axis2D1 As Axis2D
+                axis2D1 = geometricElements1.Item("AbsoluteAxis")
+
+                Dim line2D1 As Line2D
+                line2D1 = axis2D1.GetItem("HDirection")
+
+                line2D1.ReportName = 1
+
+                Dim line2D2 As Line2D
+                line2D2 = axis2D1.GetItem("VDirection")
+
+                line2D2.ReportName = 2
+
+                Dim point2D1 As Point2D
+                point2D1 = factory2D1.CreatePoint(0, 0)
+
+                point2D1.ReportName = 3
+
+                Dim circle2D1 As Circle2D
+                circle2D1 = factory2D1.CreateClosedCircle(0, 0, 100)
+
+                circle2D1.CenterPoint = point2D1
+
+                circle2D1.ReportName = 4
+
+                sketch1.CloseEdition()
+
+                part1.InWorkObject = hybridBody1
+
+                'part1.Update()
+                Return sketch1
+            End Function
+            Public Sub realSketch()
+
+
+            End Sub
+
+            Public Sub pad()
+                Dim partDocument1 As PartDocument
+                partDocument1 = oPart.GetPartDocument()
+
+                Dim part1 As Part
+                part1 = partDocument1.Part
+
+                Dim bodies1 As Bodies
+                bodies1 = part1.Bodies
+
+                Dim body1 As Body
+                body1 = bodies1.Item("PartBody")
+
+                part1.InWorkObject = body1
+
+                part1.InWorkObject = body1
+
+                Dim shapeFactory1 As PARTITF.ShapeFactory
+                shapeFactory1 = part1.ShapeFactory
+
+                Dim reference1 As Reference
+                reference1 = part1.CreateReferenceFromName("")
+
+                Dim pad1 As PARTITF.Pad
+                pad1 = shapeFactory1.AddNewPadFromRef(reference1, 20.0#)
+
+                Dim hybridBodies1 As HybridBodies
+                hybridBodies1 = part1.HybridBodies
+
+                Dim hybridBody1 As HybridBody
+                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+
+                'Dim sketches1 As Sketches
+                'sketches1 = hybridBody1.HybridSketches
+
+                'Dim sketch1 As Sketch
+                'sketch1 = sketches1.Item("Sketch.1")
+
+                Dim reference2 As Reference
+                reference2 = part1.CreateReferenceFromObject(FctCreateACircle)
+
+                pad1.SetProfileElement(reference2)
+
+                part1.Update()
+            End Sub
 
         End Class
         Public Class Drawer

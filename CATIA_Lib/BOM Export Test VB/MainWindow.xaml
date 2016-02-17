@@ -12,6 +12,7 @@
         <Button x:Name="button1" Content="3D" HorizontalAlignment="Left" Height="54" Margin="180,89,0,0" VerticalAlignment="Top" Width="95"/>
         <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Height="Auto" Margin="18,186,0,0" VerticalAlignment="Top" Width="Auto"/>
         <Button x:Name="button2" Content="Create Panel" HorizontalAlignment="Left" Height="55" Margin="237,216,0,0" VerticalAlignment="Top" Width="91"/>
+        <Button x:Name="button3" Content="New Product" HorizontalAlignment="Left" Height="34" Margin="111,22,0,0" VerticalAlignment="Top" Width="164"/>
 
     </Grid>
 </Window>

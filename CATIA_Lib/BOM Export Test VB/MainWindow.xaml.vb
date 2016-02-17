@@ -21,8 +21,12 @@
         'Panel.pad()
 
         Dim Drawer As New CATIA_Lib.Cl_CATIA.UDF.Drawer(50, 40, 15, 20, 25, 14)
-        Drawer.CreateFrontPanel()
+        Drawer.Create()
         'oPart.CreatePlanefromOffset("Bottom")
         'oPart.Pad("Bottom")
+    End Sub
+
+    Private Sub button3_Click(sender As Object, e As RoutedEventArgs) Handles button3.Click
+        oProduct.CreateANewProduct("Drawer")
     End Sub
 End Class

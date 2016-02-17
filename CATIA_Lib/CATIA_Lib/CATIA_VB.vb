@@ -61,9 +61,7 @@ Public Class Cl_CATIA
     End Function
     Public Class _3D
         Public Class oProduct
-            Public Sub test()
-                MsgBox("hi")
-            End Sub
+
             Function GetProductDocument() As ProductDocument
                 oCATIA = GetCATIA()
                 Dim MyProductDocument As ProductDocument
@@ -93,6 +91,15 @@ Public Class Cl_CATIA
                 End If
                 Return True
             End Function
+
+            Public Sub CreateANewProduct(Optional NameOfProduct As String = "Product")
+                Dim CATIADocuments As Documents
+                CATIADocuments = oCATIA.Documents
+
+                Dim NewProduct As ProductDocument
+                NewProduct = CATIADocuments.Add("Product")
+            End Sub
+
             Public Function SelectSingle3DProduct() As Product
                 Dim ActiveProductDocument As ProductDocument, ActiveProduct As Product
 
@@ -404,12 +411,102 @@ Public Class Cl_CATIA
 
                 'Return hybridBody1.HybridShapes.Item("New Plane")
             End Sub
-            Public Function CreateACenteredRectangle(Width As Double, Height As Double, Optional SketchSupport As String = "Bottom", Optional CenterX As Double = 0, Optional CenterY As Double = 0) As Sketch
+            Public Function fctCreatePlanefromOffset(NameofPlane As String, Offset As Double) As Reference
+                Dim ActivePartDocument As PartDocument
+                Dim Part1 As Part
+
+                ActivePartDocument = GetPartDocument()
+                Part1 = ActivePartDocument.Part
+
+                Dim hybridShapeFactory1 As HybridShapeFactory
+                hybridShapeFactory1 = Part1.HybridShapeFactory
+
+                Dim originElements1 As OriginElements
+                originElements1 = Part1.OriginElements
+
+                Dim hybridShapePlaneExplicit1 As HybridShapePlaneExplicit
+
+
+                Dim reference1 As Reference
+                Dim PlaneOrientaion As Boolean
+                Select Case UCase(NameofPlane)
+                    Case "FRONT"
+                        'reference1 = originElements1.PlaneXY
+                        'reference1 = CreatePlanefromOffset()
+                        hybridShapePlaneExplicit1 = originElements1.PlaneYZ
+                        reference1 = originElements1.PlaneYZ
+                        PlaneOrientaion = False
+                    Case "REAR"
+                        hybridShapePlaneExplicit1 = originElements1.PlaneYZ
+                        reference1 = originElements1.PlaneYZ
+                        PlaneOrientaion = True
+                    Case "FWD"
+                        hybridShapePlaneExplicit1 = originElements1.PlaneZX
+                        reference1 = originElements1.PlaneZX
+                        PlaneOrientaion = False
+                    Case "AFT"
+                        hybridShapePlaneExplicit1 = originElements1.PlaneZX
+                        reference1 = originElements1.PlaneZX
+                        PlaneOrientaion = True
+                    Case "BOTTOM"
+                        hybridShapePlaneExplicit1 = originElements1.PlaneXY
+                        reference1 = originElements1.PlaneXY
+                        PlaneOrientaion = True
+                    Case "TOP"
+                        hybridShapePlaneExplicit1 = originElements1.PlaneXY
+                        reference1 = originElements1.PlaneXY
+                        PlaneOrientaion = False
+                    Case Else
+                        MsgBox("Choose a proper Sketch Support Name")
+                        Exit Function
+                End Select
+
+
+
+                reference1 = Part1.CreateReferenceFromObject(hybridShapePlaneExplicit1)
+
+                Dim hybridShapePlaneOffset1 As HybridShapePlaneOffset
+                hybridShapePlaneOffset1 = hybridShapeFactory1.AddNewPlaneOffset(reference1, Offset, PlaneOrientaion)
+                hybridShapePlaneOffset1.Name = NameofPlane
+
+                Dim hybridBodies1 As HybridBodies
+                hybridBodies1 = Part1.HybridBodies
+
+                Dim hybridBody1 As HybridBody
+                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+
+                hybridBody1.AppendHybridShape(hybridShapePlaneOffset1)
+
+                'Part1.InWorkObject = hybridShapePlaneOffset1
+
+                Part1.Update()
+
+                Return hybridBody1.HybridShapes.Item(NameofPlane)
+            End Function
+            Public Sub Split(SplittingElement As String, oSplitside As Boolean)
+
                 Dim partDocument1 As PartDocument
                 partDocument1 = GetPartDocument()
 
                 Dim part1 As Part
                 part1 = partDocument1.Part
+
+                Dim bodies1 As Bodies
+                bodies1 = part1.Bodies
+
+                Dim body1 As Body
+                body1 = bodies1.Item("PartBody")
+
+                part1.InWorkObject = body1
+
+                Dim shapeFactory1 As PARTITF.ShapeFactory
+                shapeFactory1 = part1.ShapeFactory
+
+                Dim reference1 As Reference
+                reference1 = part1.CreateReferenceFromName("")
+
+                Dim split1 As PARTITF.Split
+                split1 = shapeFactory1.AddNewSplit(reference1, oSplitside)
 
                 Dim hybridBodies1 As HybridBodies
                 hybridBodies1 = part1.HybridBodies
@@ -417,23 +514,45 @@ Public Class Cl_CATIA
                 Dim hybridBody1 As HybridBody
                 hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
 
-                Dim sketches1 As Sketches
-                sketches1 = hybridBody1.HybridSketches
+                Dim hybridShapes1 As HybridShapes
+                hybridShapes1 = hybridBody1.HybridShapes
 
-                Dim originElements1 As OriginElements
-                originElements1 = part1.OriginElements
+                Dim hybridShapePlaneOffset1 As HybridShapePlaneOffset
+                hybridShapePlaneOffset1 = hybridShapes1.Item(SplittingElement)
 
+                Dim reference2 As Reference
+                reference2 = part1.CreateReferenceFromObject(hybridShapePlaneOffset1)
+
+                split1.Surface = reference2
+
+                'split1.SplitSide = PARTITF.CatSplitSide.catPositiveSide
+
+                part1.Update()
+
+
+            End Sub
+
+
+            Public Function CreateACenteredRectangle(Width As Double, Height As Double, Optional SketchSupport As String = "Bottom", Optional CenterX As Double = 0, Optional CenterY As Double = 0) As Sketch
+                Dim partDocument1 As PartDocument
+                partDocument1 = GetPartDocument()
+
+                Dim part1 As Part = partDocument1.Part
+                Dim hybridBodies1 As HybridBodies = part1.HybridBodies
+                Dim hybridBody1 As HybridBody = hybridBodies1.Item("Geometrical Set.1")
+                Dim sketches1 As Sketches = hybridBody1.HybridSketches
+                Dim originElements1 As OriginElements = part1.OriginElements
                 Dim reference1 As Reference
 
-                Select Case UCase(SketchSupport)
-                    Case "XY"
-                        'reference1 = originElements1.PlaneXY
-                        'reference1 = CreatePlanefromOffset()
-                    Case "YZ"
-                        reference1 = originElements1.PlaneYZ
-                    Case "ZX"
-                        reference1 = originElements1.PlaneZX
-                End Select
+                'Select Case UCase(SketchSupport)
+                '    Case "XY"
+                '        'reference1 = originElements1.PlaneXY
+                '        'reference1 = CreatePlanefromOffset()
+                '    Case "YZ"
+                '        reference1 = originElements1.PlaneYZ
+                '    Case "ZX"
+                '        reference1 = originElements1.PlaneZX
+                'End Select
 
                 'CreatePlanefromOffset()
                 Dim sketch1 As Sketch
@@ -456,169 +575,90 @@ Public Class Cl_CATIA
 
                 part1.InWorkObject = sketch1
 
-                Dim factory2D1 As Factory2D
-                factory2D1 = sketch1.OpenEdition()
+                Dim factory2D1 As Factory2D = sketch1.OpenEdition()
 
-                Dim geometricElements1 As GeometricElements
-                geometricElements1 = sketch1.GeometricElements
+                Dim geometricElements1 As GeometricElements = sketch1.GeometricElements
 
-                Dim axis2D1 As Axis2D
-                axis2D1 = geometricElements1.Item("AbsoluteAxis")
-
-                Dim line2D1 As Line2D
-                line2D1 = axis2D1.GetItem("HDirection")
-
+                Dim axis2D1 As Axis2D = geometricElements1.Item("AbsoluteAxis")
+                Dim line2D1 As Line2D = axis2D1.GetItem("HDirection")
+                Dim line2D2 As Line2D = axis2D1.GetItem("VDirection")
                 line2D1.ReportName = 1
-
-                Dim line2D2 As Line2D
-                line2D2 = axis2D1.GetItem("VDirection")
-
                 line2D2.ReportName = 2
 
-                Dim point2D1 As Point2D
-                point2D1 = factory2D1.CreatePoint(CenterX, CenterY)
-
+                Dim point2D1 As Point2D = factory2D1.CreatePoint(CenterX, CenterY)
+                Dim point2D2 As Point2D = factory2D1.CreatePoint(CenterX + Width / 2, CenterY + Height / 2)
+                Dim point2D3 As Point2D = factory2D1.CreatePoint(CenterX + Width / 2, CenterY - Height / 2)
+                Dim line2D3 As Line2D = factory2D1.CreateLine(CenterX + Width / 2, CenterY + Height / 2, CenterX + Width / 2, CenterY - Height / 2)
                 point2D1.ReportName = 3
-
-                Dim point2D2 As Point2D
-                point2D2 = factory2D1.CreatePoint(CenterX + Width / 2, CenterY + Height / 2)
-
                 point2D2.ReportName = 4
-
-                Dim point2D3 As Point2D
-                point2D3 = factory2D1.CreatePoint(CenterX + Width / 2, CenterY - Height / 2)
-
                 point2D3.ReportName = 5
-
-                Dim line2D3 As Line2D
-                line2D3 = factory2D1.CreateLine(CenterX + Width / 2, CenterY + Height / 2, CenterX + Width / 2, CenterY - Height / 2)
-
                 line2D3.ReportName = 6
-
                 line2D3.StartPoint = point2D2
-
                 line2D3.EndPoint = point2D3
 
-                Dim point2D4 As Point2D
-                point2D4 = factory2D1.CreatePoint(CenterX - Width / 2, CenterY - Height / 2)
 
+                Dim point2D4 As Point2D = factory2D1.CreatePoint(CenterX - Width / 2, CenterY - Height / 2)
+                Dim line2D4 As Line2D = factory2D1.CreateLine(CenterX + Width / 2, CenterY - Height / 2, CenterX - Width / 2, CenterY - Height / 2)
                 point2D4.ReportName = 7
-
-                Dim line2D4 As Line2D
-                line2D4 = factory2D1.CreateLine(CenterX + Width / 2, CenterY - Height / 2, CenterX - Width / 2, CenterY - Height / 2)
-
                 line2D4.ReportName = 8
-
                 line2D4.StartPoint = point2D3
-
                 line2D4.EndPoint = point2D4
 
-                Dim point2D5 As Point2D
-                point2D5 = factory2D1.CreatePoint(CenterX - Width / 2, CenterY + Height / 2)
 
+                Dim point2D5 As Point2D = factory2D1.CreatePoint(CenterX - Width / 2, CenterY + Height / 2)
+                Dim line2D5 As Line2D = factory2D1.CreateLine(CenterX - Width / 2, CenterY - Height / 2, CenterX - Width / 2, CenterY + Height / 2)
                 point2D5.ReportName = 9
-
-                Dim line2D5 As Line2D
-                line2D5 = factory2D1.CreateLine(CenterX - Width / 2, CenterY - Height / 2, CenterX - Width / 2, CenterY + Height / 2)
-
                 line2D5.ReportName = 10
-
                 line2D5.StartPoint = point2D4
-
                 line2D5.EndPoint = point2D5
 
-                Dim line2D6 As Line2D
-                line2D6 = factory2D1.CreateLine(CenterX - Width / 2, CenterY + Height / 2, CenterX + Width / 2, CenterY + Height / 2)
 
+                Dim line2D6 As Line2D = factory2D1.CreateLine(CenterX - Width / 2, CenterY + Height / 2, CenterX + Width / 2, CenterY + Height / 2)
                 line2D6.ReportName = 11
-
                 line2D6.StartPoint = point2D5
-
                 line2D6.EndPoint = point2D2
 
-                Dim constraints1 As Constraints
-                constraints1 = sketch1.Constraints
+                Dim constraints1 As Constraints = sketch1.Constraints
 
-                Dim reference2 As Reference
-                reference2 = part1.CreateReferenceFromObject(line2D3)
-
-                Dim reference3 As Reference
-                reference3 = part1.CreateReferenceFromObject(line2D2)
-
-                Dim constraint1 As Constraint
-                constraint1 = constraints1.AddBiEltCst(catCstTypeVerticality, reference2, reference3)
-
+                Dim reference2 As Reference = part1.CreateReferenceFromObject(line2D3)
+                Dim reference3 As Reference = part1.CreateReferenceFromObject(line2D2)
+                Dim constraint1 As Constraint = constraints1.AddBiEltCst(catCstTypeVerticality, reference2, reference3)
                 constraint1.Mode = catCstModeDrivingDimension
 
-                Dim reference4 As Reference
-                reference4 = part1.CreateReferenceFromObject(line2D4)
-
-                Dim reference5 As Reference
-                reference5 = part1.CreateReferenceFromObject(line2D1)
-
-                Dim constraint2 As Constraint
-                constraint2 = constraints1.AddBiEltCst(catCstTypeHorizontality, reference4, reference5)
-
+                Dim reference4 As Reference = part1.CreateReferenceFromObject(line2D4)
+                Dim reference5 As Reference = part1.CreateReferenceFromObject(line2D1)
+                Dim constraint2 As Constraint = constraints1.AddBiEltCst(catCstTypeHorizontality, reference4, reference5)
                 constraint2.Mode = catCstModeDrivingDimension
 
-                Dim reference6 As Reference
-                reference6 = part1.CreateReferenceFromObject(line2D5)
-
-                Dim reference7 As Reference
-                reference7 = part1.CreateReferenceFromObject(line2D2)
-
-                Dim constraint3 As Constraint
-                constraint3 = constraints1.AddBiEltCst(catCstTypeVerticality, reference6, reference7)
-
+                Dim reference6 As Reference = part1.CreateReferenceFromObject(line2D5)
+                Dim reference7 As Reference = part1.CreateReferenceFromObject(line2D2)
+                Dim constraint3 As Constraint = constraints1.AddBiEltCst(catCstTypeVerticality, reference6, reference7)
                 constraint3.Mode = catCstModeDrivingDimension
 
-                Dim reference8 As Reference
-                reference8 = part1.CreateReferenceFromObject(line2D6)
-
-                Dim reference9 As Reference
-                reference9 = part1.CreateReferenceFromObject(line2D1)
-
-                Dim constraint4 As Constraint
-                constraint4 = constraints1.AddBiEltCst(catCstTypeHorizontality, reference8, reference9)
-
+                Dim reference8 As Reference = part1.CreateReferenceFromObject(line2D6)
+                Dim reference9 As Reference = part1.CreateReferenceFromObject(line2D1)
+                Dim constraint4 As Constraint = constraints1.AddBiEltCst(catCstTypeHorizontality, reference8, reference9)
                 constraint4.Mode = catCstModeDrivingDimension
 
-                Dim reference10 As Reference
-                reference10 = part1.CreateReferenceFromObject(line2D3)
+                Dim reference10 As Reference = part1.CreateReferenceFromObject(line2D3)
+                Dim reference11 As Reference = part1.CreateReferenceFromObject(line2D5)
+                Dim reference12 As Reference = part1.CreateReferenceFromObject(point2D1)
 
-                Dim reference11 As Reference
-                reference11 = part1.CreateReferenceFromObject(line2D5)
-
-                Dim reference12 As Reference
-                reference12 = part1.CreateReferenceFromObject(point2D1)
-
-                Dim constraint5 As Constraint
-                constraint5 = constraints1.AddTriEltCst(catCstTypeEquidistance, reference10, reference11, reference12)
-
+                Dim constraint5 As Constraint = constraints1.AddTriEltCst(catCstTypeEquidistance, reference10, reference11, reference12)
+                Dim reference13 As Reference = part1.CreateReferenceFromObject(line2D4)
+                Dim reference14 As Reference = part1.CreateReferenceFromObject(line2D6)
                 constraint5.Mode = catCstModeDrivingDimension
 
-                Dim reference13 As Reference
-                reference13 = part1.CreateReferenceFromObject(line2D4)
-
-                Dim reference14 As Reference
-                reference14 = part1.CreateReferenceFromObject(line2D6)
-
-                Dim reference15 As Reference
-                reference15 = part1.CreateReferenceFromObject(point2D1)
-
-                Dim constraint6 As Constraint
-                constraint6 = constraints1.AddTriEltCst(catCstTypeEquidistance, reference13, reference14, reference15)
-
+                Dim reference15 As Reference = part1.CreateReferenceFromObject(point2D1)
+                Dim constraint6 As Constraint = constraints1.AddTriEltCst(catCstTypeEquidistance, reference13, reference14, reference15)
                 constraint6.Mode = catCstModeDrivingDimension
 
                 sketch1.CloseEdition()
 
                 part1.InWorkObject = hybridBody1
+
                 Return sketch1
             End Function
-
-
-
             Public Function CreateASketchCircle(iX As Double, iY As Double, Diameter As Double, Optional SketchSupport As String = "XY") As Sketch
                 Dim partDocument1 As PartDocument
                 partDocument1 = GetPartDocument()
@@ -2109,36 +2149,88 @@ Public Class Cl_CATIA
         End Class
         Public Class Drawer
             Dim oPart As New _3D.oPart
-            Dim FS As Double, WL As Double, LBL As Double
-            Dim Height As Double, Depth As Double, Width As Double
-            Sub New(oFS As Double, oWL As Double, oLBL As Double, oHeight As Double, oDepth As Double, oWidth As Double)
-                FS = oFS
-                WL = oWL
-                LBL = oLBL
-                Height = oHeight
-                Depth = oDepth
-                Width = oWidth
+            Dim oFS As Double, oWL As Double, oRBL As Double
+            Dim oHeight As Double, oDepth As Double, oWidth As Double
+            Dim FrontPlane As Reference, BottomPlane As Reference, FWDPlane As Reference, AFTPlane As Reference, TopPlane As Reference, RearPlane As Reference
+            Sub New(FS As Double, WL As Double, RBL As Double, Height As Double, Depth As Double, Width As Double)
+                oFS = FS
+                oWL = WL
+                oRBL = RBL
+                oHeight = Height + oWL
+                oDepth = Depth + oRBL
+                oWidth = Width + oFS
             End Sub
+            Public Sub Create()
+                CreateFrontPanel()
+                CreateRearPanel()
+                CreateFWDPanel()
+                CreateAFTPanel()
+                CreateBottomPanel()
 
+            End Sub
+            Sub CreateReferencePlanes()
+                FrontPlane = oPart.fctCreatePlanefromOffset("FRONT", oRBL)
+                RearPlane = oPart.fctCreatePlanefromOffset("REAR", oDepth)
+                FWDPlane = oPart.fctCreatePlanefromOffset("FWD", oFS)
+                AFTPlane = oPart.fctCreatePlanefromOffset("AFT", oWidth)
+                BottomPlane = oPart.fctCreatePlanefromOffset("BOTTOM", oWL)
+                TopPlane = oPart.fctCreatePlanefromOffset("TOP", oHeight)
+            End Sub
+            Sub TrimPanel(TrimmingPlane As String, TrimSide As Boolean)
+                oPart.Split(TrimmingPlane, TrimSide)
+            End Sub
             Public Sub CreateFrontPanel()
+                CreateReferencePlanes()
 
-                oPart.CreatePlanefromOffset("Bottom")
-                oPart.Pad("Bottom")
 
+                oPart.Pad("FRONT")
+
+                TrimPanel("TOP", 1)
+                TrimPanel("BOTTOM", 0)
+                TrimPanel("FWD", 1)
+                TrimPanel("AFT", 0)
             End Sub
             Public Sub CreateRearPanel()
+                CreateReferencePlanes()
 
+                oPart.Pad("REAR")
+
+                TrimPanel("TOP", 1)
+                TrimPanel("BOTTOM", 0)
+                TrimPanel("FWD", 1)
+                TrimPanel("AFT", 0)
             End Sub
             Public Sub CreateBottomPanel()
+                CreateReferencePlanes()
 
+                oPart.Pad("BOTTOM")
+
+                TrimPanel("REAR", 0)
+                TrimPanel("FRONT", 1)
+                TrimPanel("FWD", 1)
+                TrimPanel("AFT", 0)
             End Sub
 
             Public Sub CreateFWDPanel()
+                CreateReferencePlanes()
 
+                oPart.Pad("FWD")
+
+                TrimPanel("TOP", 1)
+                TrimPanel("BOTTOM", 0)
+                TrimPanel("REAR", 0)
+                TrimPanel("FRONT", 1)
             End Sub
 
             Public Sub CreateAFTPanel()
+                CreateReferencePlanes()
 
+                oPart.Pad("AFT")
+
+                TrimPanel("TOP", 1)
+                TrimPanel("BOTTOM", 0)
+                TrimPanel("REAR", 0)
+                TrimPanel("FRONT", 1)
             End Sub
 
 

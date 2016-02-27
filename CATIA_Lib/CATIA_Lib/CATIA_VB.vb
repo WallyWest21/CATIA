@@ -20,12 +20,14 @@ Imports ProductStructureTypeLib.CatWorkModeType 'apply design mode
 Imports INFITF
 Imports INFITF.CATMultiSelectionMode
 Imports System.Linq
+Imports SPATypeLib
+
 
 'Imports PARTITF
 
 Public Class Cl_CATIA
-    Shared oCATIA As INFITF.Application
-    Shared Function GetCATIA() As INFITF.Application
+    Public Shared oCATIA As INFITF.Application
+    Public Shared Function GetCATIA() As INFITF.Application
         oCATIA = GetObject(, "CATIA.Application")
         If oCATIA Is Nothing Or Err.Number <> 0 Then
             MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
@@ -98,8 +100,78 @@ Public Class Cl_CATIA
 
                 Dim NewProduct As ProductDocument
                 NewProduct = CATIADocuments.Add("Product")
-            End Sub
 
+
+                Dim product1 As Product
+                product1 = NewProduct.Product
+
+                Dim products1 As Products
+                products1 = product1.Products
+            End Sub
+            Public Function InsertANewPart(Optional oPartNumber As String = "") As ProductDocument
+                Dim ActiveProductDocument As ProductDocument
+
+                ActiveProductDocument = GetProductDocument()
+
+                Dim product1 As Product = ActiveProductDocument.Product
+
+                Dim products1 As Product = product1.Products
+
+                Dim product2 As Product = products1.AddNewComponent("Part", oPartNumber)
+
+                Dim partDocument1 As PartDocument
+                'partDocument1 = ActiveProductDocument.Item("Part3.CATPart")
+
+                'Dim part1 As Part
+                'part1 = partDocument1.Part
+                Return ActiveProductDocument
+            End Function
+            Public Sub SubInsertANewPart(Optional oPartNumber As String = "")
+                Dim ActiveProductDocument As ProductDocument
+                ActiveProductDocument = GetProductDocument()
+
+
+                ActiveProductDocument.Activate()
+                Dim product1 As Product = ActiveProductDocument.Product
+
+                Dim products1 As Products = product1.Products
+
+                'Threading.Thread.Sleep(10000)
+
+
+                Dim product2 As Product
+                Try
+                    product2 = products1.AddNewComponent("Part", oPartNumber)
+                    product2.Update()
+                    product2.Update()
+                Catch ex As Exception
+
+                    MsgBox("Let's wait a while together")
+                    Threading.Thread.Sleep(30000)
+
+                End Try
+
+
+
+                'Dim product2 As Product = AddNewComponent(products1, oPartNumber)
+
+
+
+                'Dim partDocument1 As PartDocument
+                'partDocument1 = ActiveProductDocument.Item(oPartNumber + ".CATPart")
+
+                'Dim part1 As Part
+                'part1 = partDocument1.Part
+
+                Threading.Thread.Sleep(2000)
+
+                'product2.Update()
+                'product2.Update()
+
+            End Sub
+            Function AddNewComponent(Products1 As Products, opartnumber As String) As Product
+                AddNewComponent = Products1.AddNewComponent("Part", opartnumber)
+            End Function
             Public Function SelectSingle3DProduct() As Product
                 Dim ActiveProductDocument As ProductDocument, ActiveProduct As Product
 
@@ -332,7 +404,7 @@ Public Class Cl_CATIA
                 On Error Resume Next
                 MyPartDocument = oCATIA.ActiveDocument
                 If MyPartDocument Is Nothing Or Err.Number <> 0 Then
-                    MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Product" & vbCrLf & "in the Active session", vbCritical, "Open a Product")
+                    MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Part" & vbCrLf & "in the Active session", vbCritical, "Open a Product")
                     Environment.Exit(0)
                 End If
 
@@ -374,48 +446,37 @@ Public Class Cl_CATIA
             'Function SelectMatingFace() As Face
 
             'End Function
-            Public Sub CreatePlanefromOffset(NameofPlane As String)
-                Dim ActivePartDocument As PartDocument
+            Public Sub CreatePlanefromOffset(NameOfPlane As String, ActivePartDocument As PartDocument)
+                'Dim ActivePartDocument As PartDocument
                 Dim Part1 As Part
 
-                ActivePartDocument = GetPartDocument()
+                'ActivePartDocument = GetPartDocument()
                 Part1 = ActivePartDocument.Part
 
-                Dim hybridShapeFactory1 As HybridShapeFactory
-                hybridShapeFactory1 = Part1.HybridShapeFactory
+                Dim hybridShapeFactory1 As HybridShapeFactory = Part1.HybridShapeFactory
 
-                Dim originElements1 As OriginElements
-                originElements1 = Part1.OriginElements
+                Dim originElements1 As OriginElements = Part1.OriginElements
 
-                Dim hybridShapePlaneExplicit1 As HybridShapePlaneExplicit
-                hybridShapePlaneExplicit1 = originElements1.PlaneXY
+                Dim hybridShapePlaneExplicit1 As HybridShapePlaneExplicit = originElements1.PlaneXY
 
-                Dim reference1 As Reference
-                reference1 = Part1.CreateReferenceFromObject(hybridShapePlaneExplicit1)
+                Dim reference1 As Reference = Part1.CreateReferenceFromObject(hybridShapePlaneExplicit1)
 
-                Dim hybridShapePlaneOffset1 As HybridShapePlaneOffset
-                hybridShapePlaneOffset1 = hybridShapeFactory1.AddNewPlaneOffset(reference1, 20.0, False)
-                hybridShapePlaneOffset1.Name = NameofPlane
+                Dim hybridShapePlaneOffset1 As HybridShapePlaneOffset = hybridShapeFactory1.AddNewPlaneOffset(reference1, 20.0, False)
+                hybridShapePlaneOffset1.Name = NameOfPlane
 
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = Part1.HybridBodies
+                Dim hybridBodies1 As HybridBodies = Part1.HybridBodies
 
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
+                Dim hybridBody1 As HybridBody = hybridBodies1.Item("Geometrical Set.1")
 
                 hybridBody1.AppendHybridShape(hybridShapePlaneOffset1)
 
-                'Part1.InWorkObject = hybridShapePlaneOffset1
-
-                'Part1.Update()
-
-                'Return hybridBody1.HybridShapes.Item("New Plane")
             End Sub
-            Public Function fctCreatePlanefromOffset(NameofPlane As String, Offset As Double) As Reference
-                Dim ActivePartDocument As PartDocument
-                Dim Part1 As Part
+            Public Function fctCreatePlanefromOffset(NameofPlane As String, Offset As Double, ActivePartDocument As PartDocument) As Reference
+                'Dim ActivePartDocument As PartDocument
 
-                ActivePartDocument = GetPartDocument()
+
+                'ActivePartDocument = GetPartDocument()
+                Dim Part1 As Part
                 Part1 = ActivePartDocument.Part
 
                 Dim hybridShapeFactory1 As HybridShapeFactory
@@ -483,7 +544,7 @@ Public Class Cl_CATIA
 
                 Return hybridBody1.HybridShapes.Item(NameofPlane)
             End Function
-            Public Sub Split(SplittingElement As String, oSplitside As Boolean)
+            Public Sub Split(SplittingElement As String, oSplitside As Boolean, Optional PartBodyName As String = "PartBody")
 
                 Dim partDocument1 As PartDocument
                 partDocument1 = GetPartDocument()
@@ -495,7 +556,7 @@ Public Class Cl_CATIA
                 bodies1 = part1.Bodies
 
                 Dim body1 As Body
-                body1 = bodies1.Item("PartBody")
+                body1 = bodies1.Item(PartBodyName)
 
                 part1.InWorkObject = body1
 
@@ -531,8 +592,6 @@ Public Class Cl_CATIA
 
 
             End Sub
-
-
             Public Function CreateACenteredRectangle(Width As Double, Height As Double, Optional SketchSupport As String = "Bottom", Optional CenterX As Double = 0, Optional CenterY As Double = 0) As Sketch
                 Dim partDocument1 As PartDocument
                 partDocument1 = GetPartDocument()
@@ -544,17 +603,7 @@ Public Class Cl_CATIA
                 Dim originElements1 As OriginElements = part1.OriginElements
                 Dim reference1 As Reference
 
-                'Select Case UCase(SketchSupport)
-                '    Case "XY"
-                '        'reference1 = originElements1.PlaneXY
-                '        'reference1 = CreatePlanefromOffset()
-                '    Case "YZ"
-                '        reference1 = originElements1.PlaneYZ
-                '    Case "ZX"
-                '        reference1 = originElements1.PlaneZX
-                'End Select
 
-                'CreatePlanefromOffset()
                 Dim sketch1 As Sketch
                 reference1 = hybridBody1.HybridShapes.Item(SketchSupport)
                 sketch1 = sketches1.Add(reference1)
@@ -747,54 +796,25 @@ Public Class Cl_CATIA
                 'part1.Update()
                 Return sketch1
             End Function
-            Public Sub realSketch()
 
-
-            End Sub
-
-            Public Sub Pad(SketchSupport As String)
-                Dim partDocument1 As PartDocument
-                partDocument1 = GetPartDocument()
-
-                Dim part1 As Part
-                part1 = partDocument1.Part
-
-                Dim bodies1 As Bodies
-                bodies1 = part1.Bodies
-
-                Dim body1 As Body
-                body1 = bodies1.Item("PartBody")
-
+            Public Sub Pad(SketchSupport As String, Optional PartBodyName As String = "PartBody", Optional Thickness As Double = 12.7)
+                Dim partDocument1 As PartDocument = GetPartDocument()
+                Dim part1 As Part = partDocument1.Part
+                Dim bodies1 As Bodies = part1.Bodies
+                Dim body1 As Body = bodies1.Item(PartBodyName)
                 part1.InWorkObject = body1
 
-                part1.InWorkObject = body1
 
-                Dim shapeFactory1 As PARTITF.ShapeFactory
-                shapeFactory1 = part1.ShapeFactory
+                Dim shapeFactory1 As PARTITF.ShapeFactory = part1.ShapeFactory
+                Dim reference1 As Reference = part1.CreateReferenceFromName("")
+                Dim pad1 As PARTITF.Pad = shapeFactory1.AddNewPadFromRef(reference1, Thickness)
+                Dim hybridBodies1 As HybridBodies = part1.HybridBodies
+                Dim hybridBody1 As HybridBody = hybridBodies1.Item("Geometrical Set.1")
 
-                Dim reference1 As Reference
-                reference1 = part1.CreateReferenceFromName("")
-
-                Dim pad1 As PARTITF.Pad
-                pad1 = shapeFactory1.AddNewPadFromRef(reference1, 20.0#)
-
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = part1.HybridBodies
-
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-
-                'Dim sketches1 As Sketches
-                'sketches1 = hybridBody1.HybridSketches
-
-                'Dim sketch1 As Sketch
-                'sketch1 = sketches1.Item("Sketch.1")
-
-                Dim reference2 As Reference
-                reference2 = part1.CreateReferenceFromObject(CreateACenteredRectangle(3000, 3000, SketchSupport))
-
+                Dim reference2 As Reference = part1.CreateReferenceFromObject(CreateACenteredRectangle(3000, 3000, SketchSupport))
                 pad1.SetProfileElement(reference2)
 
+                body1.Name = PartBodyName
                 part1.Update()
             End Sub
 
@@ -920,13 +940,6 @@ Public Class Cl_CATIA
 
             Active2DTablesList = Select2DTable()
 
-
-
-
-            'Active2DTable = Active2DTablesList(0)
-
-
-
             Dim ParentsDashNos As New List(Of String)
 
             For column = 1 To Active2DTablesList(0).NumberOfColumns
@@ -946,7 +959,7 @@ Public Class Cl_CATIA
 
                         cl_PL = New cl_PartsList
                         tempParentDasNosList = New List(Of String)
-                        tempQtyList = New List(Of String)
+                        tempQtyList = New List(Of String)                                                           'Find a way to improve on getting quantity from table, CUZ THIS IS GARBAGE!!!!!
                         cl_PL.DrawingNo = "B471356"
                         cl_PL.PartNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns - 3).ToString
                         cl_PL.ItemNo = Active2DTable.GetCellString(row, Active2DTable.NumberOfColumns)
@@ -1020,7 +1033,6 @@ Public Class Cl_CATIA
         End Function
         Public Function IsADrawingDocumentOpen() As Boolean
 
-
             oCATIA = GetCATIA()
             Dim MyDrawingDocument As DrawingDocument
 
@@ -1092,6 +1104,47 @@ Public Class Cl_CATIA
             Next
 
             'oDrawingText.SetParameterOnSubString catBorder, 1, 2, 6
+
+        End Sub
+
+        Public Sub WriteNotesToDrawing()
+
+        End Sub
+        Public Sub WriteNotesToDrawing(Notes As List(Of String))
+
+            Dim oDrawingDocument As DrawingDocument = GetDrawingDocument()
+            Dim oDrawingSheets As DrawingSheets = oDrawingDocument.Sheets
+            Dim oDrawingSheet As DrawingSheet = oDrawingSheets.ActiveSheet
+            Dim oDrawingViews As DrawingViews = oDrawingSheet.Views
+
+            oDrawingViews.Add("Notes")
+
+            Dim oDrawingView As DrawingView = oDrawingViews.Item("Notes")
+            Dim oDrawingText As DrawingText
+
+            Dim Y As Integer
+
+            oDrawingText = oDrawingView.Texts.Add("NOTES: UNLESS OTHERWISE SPECIFIED", 30, 530 - Y)
+            oDrawingText.TextProperties.Justification = CatJustification.catLeft
+
+            oDrawingText.WrappingWidth = 500
+            oDrawingText.SetParameterOnSubString(catBold, 1, 6, 1)
+            Y = Y + 15
+
+            Dim count As Integer = 1
+            For Each Note In Notes
+
+                oDrawingText = oDrawingView.Texts.Add(count & ". " & Note, 30, 530 - Y)
+                oDrawingText.TextProperties.Justification = CatJustification.catLeft
+
+                oDrawingText.WrappingWidth = 500
+                oDrawingText.Name = "Note_ID_" & count
+
+                If (count Mod 2) = 0 Then Call DrwFlagNote(oDrawingText)
+
+                Y = Y + 15
+                count += 1
+            Next
 
         End Sub
         Function GetNotes(ByRef oDrawingText As DrawingText) As Collection
@@ -1582,576 +1635,119 @@ Public Class Cl_CATIA
 
     End Class
     Public Class UDF
+        Shared Function GetCATIA() As INFITF.Application
+            oCATIA = GetObject(, "CATIA.Application")
+            If oCATIA Is Nothing Or Err.Number <> 0 Then
+                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a CATIA session", vbCritical, "Open a CATIA Session ")
+                Err.Clear()
+                Exit Function
+                'Environment.Exit(0)
+                '       Set CATIA = CreateObject("CATIA.Application")
+                '       CATIA.Visible = True
+            End If
+
+            GetCATIA = oCATIA
+        End Function
+
+        Shared Function GetProductDocument() As ProductDocument
+            oCATIA = GetCATIA()
+            Dim MyProductDocument As ProductDocument
+
+            On Error Resume Next
+            MyProductDocument = oCATIA.ActiveDocument
+            If MyProductDocument Is Nothing Or Err.Number <> 0 Then
+                ' MsgBox "No CATIA Active Document found "
+                MsgBox("To avoid a beep" & vbCrLf & "Or a rude message" & vbCrLf & "Just open a Product" & vbCrLf & "in the Active session", vbCritical, "Open a Product")
+                Err.Clear()
+                Environment.Exit(0)
+            End If
+            GetProductDocument = MyProductDocument
+        End Function
+
+        Public Class ClashAnalysis
+            Public Sub ActiveProductClash()
+
+                GetCATIA.DisplayFileAlerts = False
+
+                Dim Message, Style, Title, Response, MyString
+
+                Message = ("If you have a big Assembly, be aware that this macro will start to put everything in Design Mode. If you don't want, put a omment in front of lines 3 to 12" &
+                        (Chr(13)) & "" & (Chr(13)) & "   Do you want to continue ?")
+
+                Style = vbYesNo + vbDefaultButton1   'Define buttons.
+
+                Title = "Purpose "
+
+                Response = MsgBox(Message, Style, Title)
+
+                If Response = vbYes Then   ' User chose Yes.
+
+                    MyString = "Yes"
+
+                    Dim productDocument1 As Document
+                    productDocument1 = GetProductDocument()
+
+                    Dim product1 As Product
+                    product1 = productDocument1.Product
+                    product1.ApplyWorkMode(DESIGN_MODE)
+
+                    Dim cClashes As Clashes
+                    cClashes = GetCATIA.ActiveDocument.Product.GetTechnologicalObject("Clashes")
+
+                    Dim oClash As Clash
+                    oClash = cClashes.AddFromSel
+                    oClash.ComputationType = CatClashComputationType.catClashComputationTypeInsideOne
+                    oClash.InterferenceType = CatClashInterferenceType.catClashInterferenceTypeContact
+
+                    oClash.Compute()
+
+
+                    'Probably Garbage!!!!!!!!!
+                    '************************************************
+                    Dim cConflicts As Conflicts
+                    cConflicts = oClash.Conflicts
+
+                    Dim I As Integer
+                    For I = 1 To cConflicts.Count
+
+                        Dim oConflict As Conflict
+                        oConflict = cConflicts.Item(I)
+
+                        'MsgBox oConflict.Value
+
+                        If (oConflict.Type = CatConflictType.catConflictTypeClash) Then
+
+                            If (oConflict.Value <> 0) Then
+
+                                oConflict.Status = CatConflictStatus.catConflictStatusRelevant
+                                Dim dFilterValue
+                                oConflict.Comment = "Automatic filter : penetration less than " & dFilterValue
+                            End If
+                        End If
+
+                    Next
+
+                    '**********************************************
+                    oClash.Export(CatClashExportType.CatClashExportTypeXMLResultOnly, "c:\Temp\sample.xml")
+
+                End If
+            End Sub
+        End Class
 
         Public Class Panel
-            Dim oPart As New _3D.oPart
-            Public Sub Create(PanelOrientation As String, Thickness As Double)
 
 
-
-            End Sub
-
-            Public Function CreateSketch() As Sketch
-
-                Dim Part1 As MECMOD.Part
-                'Dim reference1 As INFITF.Reference
-                Dim theSketch As MECMOD.Sketch
-
-                Dim ActivePartDocument As PartDocument
-                'ActivePartDocument = oPart.GetPartDocument()
-
-                Dim hybridBodies1 As HybridBodies
-
-
-                Dim hybridBody1 As HybridBody
-
-                Try
-                    ActivePartDocument = oPart.GetPartDocument()
-                    Part1 = ActivePartDocument.Part
-                    hybridBodies1 = Part1.HybridBodies
-                    hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-                    Dim hybridShapes1 As HybridShapes
-                    hybridShapes1 = hybridBody1.HybridShapes
-
-                    Dim reference1 As Reference
-                    reference1 = hybridShapes1.Item("Plane.4")
-
-                    'reference1 = Part1.OriginElements.PlaneXY
-                    theSketch = Part1.Bodies.Item("PartBody").Sketches.Add(reference1)
-
-                    Dim arrayOfVariantOfDouble1(8)
-                    arrayOfVariantOfDouble1(0) = 0.0
-                    arrayOfVariantOfDouble1(1) = 0.0
-                    arrayOfVariantOfDouble1(2) = 0.0
-                    arrayOfVariantOfDouble1(3) = 1.0
-                    arrayOfVariantOfDouble1(4) = 0.0
-                    arrayOfVariantOfDouble1(5) = 0.0
-                    arrayOfVariantOfDouble1(6) = 0.0
-                    arrayOfVariantOfDouble1(7) = 1.0
-                    arrayOfVariantOfDouble1(8) = 0.0
-                    theSketch.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
-
-
-                    Dim FirstPoint As Point2D
-                    FirstPoint = CreateAPoint(theSketch, -150, 150)
-
-                    Dim SecondPoint As Point2D
-                    SecondPoint = CreateAPoint(theSketch, 150, 150)
-
-                    Dim ThirdPoint As Point2D
-                    ThirdPoint = CreateAPoint(theSketch, 150, -150)
-
-                    Dim FourthPoint As Point2D
-                    FourthPoint = CreateAPoint(theSketch, -150, -150)
-
-                    CreateALine(theSketch, FirstPoint, SecondPoint).ReportName = 1
-                    CreateALine(theSketch, SecondPoint, ThirdPoint).ReportName = 2
-                    CreateALine(theSketch, ThirdPoint, FourthPoint).ReportName = 3
-                    CreateALine(theSketch, FourthPoint, FirstPoint).ReportName = 4
-
-                    theSketch.CloseEdition()
-
-                    Part1.InWorkObject = hybridBody1
-
-                    'Part1.Update()
-
-
-                    'Part1.InWorkObject = theSketch
-                    Part1.UpdateObject(theSketch)
-                    Return theSketch
-                Catch ex As Exception
-                    MsgBox(" Failed to create sketch", MsgBoxStyle.Critical)
-                    MsgBox(ex.Message(), MsgBoxStyle.Critical)
-                    Return Nothing
-                End Try
-
-            End Function
-            Public Sub CreatePlanefromOffset()
-                Dim ActivePartDocument As PartDocument
-                Dim Part1 As Part
-
-                ActivePartDocument = oPart.GetPartDocument()
-                Part1 = ActivePartDocument.Part
-
-                Dim hybridShapeFactory1 As HybridShapeFactory
-                hybridShapeFactory1 = Part1.HybridShapeFactory
-
-                Dim originElements1 As OriginElements
-                originElements1 = Part1.OriginElements
-
-                Dim hybridShapePlaneExplicit1 As HybridShapePlaneExplicit
-                hybridShapePlaneExplicit1 = originElements1.PlaneXY
-
-                Dim reference1 As Reference
-                reference1 = Part1.CreateReferenceFromObject(hybridShapePlaneExplicit1)
-
-                Dim hybridShapePlaneOffset1 As HybridShapePlaneOffset
-                hybridShapePlaneOffset1 = hybridShapeFactory1.AddNewPlaneOffset(reference1, 20.0, False)
-
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = Part1.HybridBodies
-
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-
-                hybridBody1.AppendHybridShape(hybridShapePlaneOffset1)
-
-                Part1.InWorkObject = hybridShapePlaneOffset1
-
-                Part1.Update()
-
-
-            End Sub
-
-            Function CreateAPoint(oSketch As Sketch, iX As Double, iY As Double) As Point2D
-                Dim ActivePartDocument As PartDocument, ooPart As Part, oFactory2D As Factory2D, oPoint As Point2D
-                Dim count = " count"
-                ActivePartDocument = oPart.GetPartDocument()
-                ooPart = ActivePartDocument.Part
-                oFactory2D = oSketch.OpenEdition
-
-                oPoint = oFactory2D.CreatePoint(iX, iY)
-                oPoint.ReportName = 5612
-                oPoint.Name = "First Point of many"
-                Dim coord
-                Dim coord1(2)
-                oPoint.GetCoordinates(coord1)
-                Return oPoint
-            End Function
-
-            Function CreateALine(oSketch As Sketch, StartPoint As Point2D, EndPoint As Point2D) As Line2D
-                Dim ActivePartDocument As PartDocument, ooPart As Part, oFactory2D As Factory2D, oLine As Line2D
-
-                ActivePartDocument = oPart.GetPartDocument()
-                ooPart = ActivePartDocument.Part
-                oFactory2D = oSketch.OpenEdition
-
-                Dim StartPointCoordinates(2)
-                Dim EndPointCoordinates(2)
-                StartPoint.GetCoordinates(StartPointCoordinates)
-                EndPoint.GetCoordinates(EndPointCoordinates)
-
-
-                oLine = oFactory2D.CreateLine(StartPointCoordinates(0), StartPointCoordinates(1), EndPointCoordinates(0), EndPointCoordinates(1))
-
-
-                oLine.StartPoint = StartPoint
-                oLine.EndPoint = EndPoint
-                Return oLine
-            End Function
-
-
-            Public Sub Trapezoid()
-                Dim partDocument1 As PartDocument
-                partDocument1 = oPart.GetPartDocument()
-
-                Dim part1 As Part
-                part1 = partDocument1.Part
-
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = part1.HybridBodies
-
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-
-                Dim sketches1 As Sketches
-                sketches1 = hybridBody1.HybridSketches
-
-                Dim originElements1 As OriginElements
-                originElements1 = part1.OriginElements
-
-                Dim reference1 As Reference
-                reference1 = originElements1.PlaneXY
-
-                Dim sketch1 As Sketch
-                sketch1 = sketches1.Add(reference1)
-
-                Dim arrayOfVariantOfDouble1(8)
-                arrayOfVariantOfDouble1(0) = 0#
-                arrayOfVariantOfDouble1(1) = 0#
-                arrayOfVariantOfDouble1(2) = 0#
-                arrayOfVariantOfDouble1(3) = 1.0#
-                arrayOfVariantOfDouble1(4) = 0#
-                arrayOfVariantOfDouble1(5) = 0#
-                arrayOfVariantOfDouble1(6) = 0#
-                arrayOfVariantOfDouble1(7) = 1.0#
-                arrayOfVariantOfDouble1(8) = 0#
-                Dim sketch1Variant
-                sketch1Variant = sketch1
-                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
-
-                part1.InWorkObject = sketch1
-
-                Dim factory2D1 As Factory2D
-                factory2D1 = sketch1.OpenEdition()
-
-                Dim geometricElements1 As GeometricElements
-                geometricElements1 = sketch1.GeometricElements
-
-                Dim axis2D1 As Axis2D
-                axis2D1 = geometricElements1.Item("AbsoluteAxis")
-
-                Dim line2D1 As Line2D
-                line2D1 = axis2D1.GetItem("HDirection")
-
-                line2D1.ReportName = 1
-
-                Dim line2D2 As Line2D
-                line2D2 = axis2D1.GetItem("VDirection")
-
-                line2D2.ReportName = 2
-
-                sketch1.CloseEdition()
-
-                part1.InWorkObject = hybridBody1
-
-                part1.Update()
-
-
-            End Sub
-
-            Public Function CreateAnotherSketch() As Sketch
-                Dim partDocument1 As PartDocument
-                partDocument1 = oPart.GetPartDocument
-
-                Dim part1 As Part
-                part1 = partDocument1.Part
-
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = part1.HybridBodies
-
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-
-                Dim sketches1 As Sketches
-                sketches1 = hybridBody1.HybridSketches
-
-                Dim hybridShapes1 As HybridShapes
-                hybridShapes1 = hybridBody1.HybridShapes
-
-                Dim reference1 As Reference
-                reference1 = hybridShapes1.Item("Plane.4")
-
-                Dim sketch1 As Sketch
-                sketch1 = sketches1.Add(reference1)
-
-                Dim arrayOfVariantOfDouble1(8)
-                arrayOfVariantOfDouble1(0) = 0#
-                arrayOfVariantOfDouble1(1) = 0#
-                arrayOfVariantOfDouble1(2) = 20.0#
-                arrayOfVariantOfDouble1(3) = 1.0#
-                arrayOfVariantOfDouble1(4) = 0#
-                arrayOfVariantOfDouble1(5) = 0#
-                arrayOfVariantOfDouble1(6) = 0#
-                arrayOfVariantOfDouble1(7) = 1.0#
-                arrayOfVariantOfDouble1(8) = 0#
-                Dim sketch1Variant
-                sketch1Variant = sketch1
-                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
-
-                part1.InWorkObject = sketch1
-
-                Dim factory2D1 As Factory2D
-                factory2D1 = sketch1.OpenEdition()
-
-                Dim geometricElements1 As GeometricElements
-                geometricElements1 = sketch1.GeometricElements
-
-                Dim axis2D1 As Axis2D
-                axis2D1 = geometricElements1.Item("AbsoluteAxis")
-
-                Dim line2D1 As Line2D
-                line2D1 = axis2D1.GetItem("HDirection")
-
-                line2D1.ReportName = 1
-
-                Dim line2D2 As Line2D
-                line2D2 = axis2D1.GetItem("VDirection")
-
-                line2D2.ReportName = 2
-
-                Dim point2D1 As Point2D
-                point2D1 = factory2D1.CreatePoint(-121.914505, 137.569885)
-
-                point2D1.ReportName = 3
-
-                Dim point2D2 As Point2D
-                point2D2 = factory2D1.CreatePoint(149.082626, 137.569885)
-
-                point2D2.ReportName = 4
-
-                Dim line2D3 As Line2D
-                line2D3 = factory2D1.CreateLine(-121.914505, 137.569885, 149.082626, 137.569885)
-
-                line2D3.ReportName = 5
-
-                line2D3.StartPoint = point2D1
-
-                line2D3.EndPoint = point2D2
-
-                Dim point2D3 As Point2D
-                point2D3 = factory2D1.CreatePoint(149.082626, -121.943497)
-
-                point2D3.ReportName = 6
-
-                Dim line2D4 As Line2D
-                line2D4 = factory2D1.CreateLine(149.082626, 137.569885, 149.082626, -121.943497)
-
-                line2D4.ReportName = 7
-
-                line2D4.EndPoint = point2D2
-
-                line2D4.StartPoint = point2D3
-
-                Dim point2D4 As Point2D
-                point2D4 = factory2D1.CreatePoint(-121.914505, -121.943497)
-
-                point2D4.ReportName = 8
-
-                Dim line2D5 As Line2D
-                line2D5 = factory2D1.CreateLine(149.082626, -121.943497, -121.914505, -121.943497)
-
-                line2D5.ReportName = 9
-
-                line2D5.StartPoint = point2D3
-
-                line2D5.EndPoint = point2D4
-
-                Dim line2D6 As Line2D
-                line2D6 = factory2D1.CreateLine(-121.914505, -121.943497, -121.914505, 137.569885)
-
-                line2D6.ReportName = 10
-
-                line2D6.EndPoint = point2D4
-
-                line2D6.StartPoint = point2D1
-                sketch1.CloseEdition()
-
-                part1.InWorkObject = sketch1
-
-                part1.Update()
-                Return sketch1
-
-            End Function
-
-            Public Sub CreateACircle()
-                Dim partDocument1 As PartDocument
-                partDocument1 = oPart.GetPartDocument()
-
-                Dim part1 As Part
-                part1 = partDocument1.Part
-
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = part1.HybridBodies
-
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-
-                Dim sketches1 As Sketches
-                sketches1 = hybridBody1.HybridSketches
-
-                Dim originElements1 As OriginElements
-                originElements1 = part1.OriginElements
-
-                Dim reference1 As Reference
-                reference1 = originElements1.PlaneXY
-
-                Dim sketch1 As Sketch
-                sketch1 = sketches1.Add(reference1)
-
-                Dim arrayOfVariantOfDouble1(8)
-                arrayOfVariantOfDouble1(0) = 0#
-                arrayOfVariantOfDouble1(1) = 0#
-                arrayOfVariantOfDouble1(2) = 0#
-                arrayOfVariantOfDouble1(3) = 1.0#
-                arrayOfVariantOfDouble1(4) = 0#
-                arrayOfVariantOfDouble1(5) = 0#
-                arrayOfVariantOfDouble1(6) = 0#
-                arrayOfVariantOfDouble1(7) = 1.0#
-                arrayOfVariantOfDouble1(8) = 0#
-
-                Dim sketch1Variant
-                sketch1Variant = sketch1
-                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
-
-                part1.InWorkObject = sketch1
-
-                Dim factory2D1 As Factory2D
-                factory2D1 = sketch1.OpenEdition()
-
-                Dim geometricElements1 As GeometricElements
-                geometricElements1 = sketch1.GeometricElements
-
-                Dim axis2D1 As Axis2D
-                axis2D1 = geometricElements1.Item("AbsoluteAxis")
-
-                Dim line2D1 As Line2D
-                line2D1 = axis2D1.GetItem("HDirection")
-
-                line2D1.ReportName = 1
-
-                Dim line2D2 As Line2D
-                line2D2 = axis2D1.GetItem("VDirection")
-
-                line2D2.ReportName = 2
-
-                Dim point2D1 As Point2D
-                point2D1 = factory2D1.CreatePoint(18.759615, 10.60326)
-
-                point2D1.ReportName = 3
-
-                Dim circle2D1 As Circle2D
-                circle2D1 = factory2D1.CreateClosedCircle(18.759615, 10.60326, 24.764466)
-
-                circle2D1.CenterPoint = point2D1
-
-                circle2D1.ReportName = 4
-
-                sketch1.CloseEdition()
-
-                part1.InWorkObject = hybridBody1
-
-                part1.Update()
-
-            End Sub
-
-            Public Function FctCreateACircle() As Sketch
-                Dim partDocument1 As PartDocument
-                partDocument1 = oPart.GetPartDocument()
-
-                Dim part1 As Part
-                part1 = partDocument1.Part
-
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = part1.HybridBodies
-
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-
-                Dim sketches1 As Sketches
-                sketches1 = hybridBody1.HybridSketches
-
-                Dim originElements1 As OriginElements
-                originElements1 = part1.OriginElements
-
-                Dim reference1 As Reference
-                reference1 = originElements1.PlaneXY
-
-                Dim sketch1 As Sketch
-                sketch1 = sketches1.Add(reference1)
-
-                Dim arrayOfVariantOfDouble1(8)
-                arrayOfVariantOfDouble1(0) = 0#
-                arrayOfVariantOfDouble1(1) = 0#
-                arrayOfVariantOfDouble1(2) = 0#
-                arrayOfVariantOfDouble1(3) = 1.0#
-                arrayOfVariantOfDouble1(4) = 0#
-                arrayOfVariantOfDouble1(5) = 0#
-                arrayOfVariantOfDouble1(6) = 0#
-                arrayOfVariantOfDouble1(7) = 1.0#
-                arrayOfVariantOfDouble1(8) = 0#
-
-                Dim sketch1Variant
-                sketch1Variant = sketch1
-                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
-
-                part1.InWorkObject = sketch1
-
-                Dim factory2D1 As Factory2D
-                factory2D1 = sketch1.OpenEdition()
-
-                Dim geometricElements1 As GeometricElements
-                geometricElements1 = sketch1.GeometricElements
-
-                Dim axis2D1 As Axis2D
-                axis2D1 = geometricElements1.Item("AbsoluteAxis")
-
-                Dim line2D1 As Line2D
-                line2D1 = axis2D1.GetItem("HDirection")
-
-                line2D1.ReportName = 1
-
-                Dim line2D2 As Line2D
-                line2D2 = axis2D1.GetItem("VDirection")
-
-                line2D2.ReportName = 2
-
-                Dim point2D1 As Point2D
-                point2D1 = factory2D1.CreatePoint(0, 0)
-
-                point2D1.ReportName = 3
-
-                Dim circle2D1 As Circle2D
-                circle2D1 = factory2D1.CreateClosedCircle(0, 0, 100)
-
-                circle2D1.CenterPoint = point2D1
-
-                circle2D1.ReportName = 4
-
-                sketch1.CloseEdition()
-
-                part1.InWorkObject = hybridBody1
-
-                'part1.Update()
-                Return sketch1
-            End Function
-            Public Sub realSketch()
-
-
-            End Sub
-
-            Public Sub Pad()
-                Dim partDocument1 As PartDocument
-                partDocument1 = oPart.GetPartDocument()
-
-                Dim part1 As Part
-                part1 = partDocument1.Part
-
-                Dim bodies1 As Bodies
-                bodies1 = part1.Bodies
-
-                Dim body1 As Body
-                body1 = bodies1.Item("PartBody")
-
-                part1.InWorkObject = body1
-
-                part1.InWorkObject = body1
-
-                Dim shapeFactory1 As PARTITF.ShapeFactory
-                shapeFactory1 = part1.ShapeFactory
-
-                Dim reference1 As Reference
-                reference1 = part1.CreateReferenceFromName("")
-
-                Dim pad1 As PARTITF.Pad
-                pad1 = shapeFactory1.AddNewPadFromRef(reference1, 20.0#)
-
-                Dim hybridBodies1 As HybridBodies
-                hybridBodies1 = part1.HybridBodies
-
-                Dim hybridBody1 As HybridBody
-                hybridBody1 = hybridBodies1.Item("Geometrical Set.1")
-
-                'Dim sketches1 As Sketches
-                'sketches1 = hybridBody1.HybridSketches
-
-                'Dim sketch1 As Sketch
-                'sketch1 = sketches1.Item("Sketch.1")
-
-                Dim reference2 As Reference
-                reference2 = part1.CreateReferenceFromObject(FctCreateACircle)
-
-                pad1.SetProfileElement(reference2)
-
-                part1.Update()
-            End Sub
 
         End Class
         Public Class Drawer
+            Dim ooCATIA As New Cl_CATIA
             Dim oPart As New _3D.oPart
+            Dim oProduct As New _3D.oProduct
             Dim oFS As Double, oWL As Double, oRBL As Double
             Dim oHeight As Double, oDepth As Double, oWidth As Double
             Dim FrontPlane As Reference, BottomPlane As Reference, FWDPlane As Reference, AFTPlane As Reference, TopPlane As Reference, RearPlane As Reference
+            Dim ActiveProductDocument As ProductDocument, CATIADocuments As Documents
+            Dim oPartNumber As New List(Of String)
             Sub New(FS As Double, WL As Double, RBL As Double, Height As Double, Depth As Double, Width As Double)
                 oFS = FS
                 oWL = WL
@@ -2159,6 +1755,9 @@ Public Class Cl_CATIA
                 oHeight = Height + oWL
                 oDepth = Depth + oRBL
                 oWidth = Width + oFS
+
+                Dim ooPartnumber As New List(Of String)(New String() {"B472402-501", "B472402-503", "B472402-505", "B472402-507", "B472402-509"})
+                oPartNumber = ooPartnumber
             End Sub
             Public Sub Create()
                 CreateFrontPanel()
@@ -2166,74 +1765,94 @@ Public Class Cl_CATIA
                 CreateFWDPanel()
                 CreateAFTPanel()
                 CreateBottomPanel()
+            End Sub
+            Sub CreateReferencePlanes(count As Integer)
+                CATIADocuments = GetCATIA.Documents
 
+                oProduct.SubInsertANewPart(oPartNumber(count))
+                'Threading.Thread.Sleep(2000)
+
+
+                Dim ActivePartDocument As PartDocument
+
+                Dim stroPartnumber As String = oPartNumber(count) + ".CATPart"
+                ActivePartDocument = CATIADocuments.Item(stroPartnumber)
+
+                FrontPlane = oPart.fctCreatePlanefromOffset("FRONT", oRBL, ActivePartDocument)
+                RearPlane = oPart.fctCreatePlanefromOffset("REAR", oDepth, ActivePartDocument)
+                FWDPlane = oPart.fctCreatePlanefromOffset("FWD", oFS, ActivePartDocument)
+                AFTPlane = oPart.fctCreatePlanefromOffset("AFT", oWidth, ActivePartDocument)
+                BottomPlane = oPart.fctCreatePlanefromOffset("BOTTOM", oWL, ActivePartDocument)
+                TopPlane = oPart.fctCreatePlanefromOffset("TOP", oHeight, ActivePartDocument)
             End Sub
-            Sub CreateReferencePlanes()
-                FrontPlane = oPart.fctCreatePlanefromOffset("FRONT", oRBL)
-                RearPlane = oPart.fctCreatePlanefromOffset("REAR", oDepth)
-                FWDPlane = oPart.fctCreatePlanefromOffset("FWD", oFS)
-                AFTPlane = oPart.fctCreatePlanefromOffset("AFT", oWidth)
-                BottomPlane = oPart.fctCreatePlanefromOffset("BOTTOM", oWL)
-                TopPlane = oPart.fctCreatePlanefromOffset("TOP", oHeight)
-            End Sub
-            Sub TrimPanel(TrimmingPlane As String, TrimSide As Boolean)
-                oPart.Split(TrimmingPlane, TrimSide)
+            Sub TrimPanel(TrimmingPlane As String, TrimSide As Boolean, Optional PartBodyName As String = "PartBody")
+                oPart.Split(TrimmingPlane, TrimSide, PartBodyName)
             End Sub
             Public Sub CreateFrontPanel()
-                CreateReferencePlanes()
+                Dim PartBodyName As String
+                PartBodyName = "FRONT PANEL"
 
+                CreateReferencePlanes(0)
 
-                oPart.Pad("FRONT")
+                oPart.Pad("FRONT", PartBodyName)
 
-                TrimPanel("TOP", 1)
-                TrimPanel("BOTTOM", 0)
-                TrimPanel("FWD", 1)
-                TrimPanel("AFT", 0)
+                TrimPanel("TOP", 1, PartBodyName)
+                TrimPanel("BOTTOM", 0, PartBodyName)
+                TrimPanel("FWD", 1, PartBodyName)
+                TrimPanel("AFT", 0, PartBodyName)
             End Sub
             Public Sub CreateRearPanel()
-                CreateReferencePlanes()
+                Dim PartBodyName As String
+                PartBodyName = "REAR PANEL"
 
-                oPart.Pad("REAR")
+                CreateReferencePlanes(1)
 
-                TrimPanel("TOP", 1)
-                TrimPanel("BOTTOM", 0)
-                TrimPanel("FWD", 1)
-                TrimPanel("AFT", 0)
+                oPart.Pad("REAR", PartBodyName)
+
+                TrimPanel("TOP", 1, PartBodyName)
+                TrimPanel("BOTTOM", 0, PartBodyName)
+                TrimPanel("FWD", 1, PartBodyName)
+                TrimPanel("AFT", 0, PartBodyName)
             End Sub
             Public Sub CreateBottomPanel()
-                CreateReferencePlanes()
+                Dim PartBodyName As String
+                PartBodyName = "BOTTOM PANEL"
 
-                oPart.Pad("BOTTOM")
+                CreateReferencePlanes(2)
 
-                TrimPanel("REAR", 0)
-                TrimPanel("FRONT", 1)
-                TrimPanel("FWD", 1)
-                TrimPanel("AFT", 0)
+                oPart.Pad("BOTTOM", PartBodyName)
+
+                TrimPanel("REAR", 0, PartBodyName)
+                TrimPanel("FRONT", 1, PartBodyName)
+                TrimPanel("FWD", 1, PartBodyName)
+                TrimPanel("AFT", 0, PartBodyName)
             End Sub
-
             Public Sub CreateFWDPanel()
-                CreateReferencePlanes()
+                Dim PartBodyName As String
+                PartBodyName = "FWD PANEL"
 
-                oPart.Pad("FWD")
+                CreateReferencePlanes(3)
 
-                TrimPanel("TOP", 1)
-                TrimPanel("BOTTOM", 0)
-                TrimPanel("REAR", 0)
-                TrimPanel("FRONT", 1)
+                oPart.Pad("FWD", PartBodyName)
+
+                TrimPanel("TOP", 1, PartBodyName)
+                TrimPanel("BOTTOM", 0, PartBodyName)
+                TrimPanel("REAR", 0, PartBodyName)
+                TrimPanel("FRONT", 1, PartBodyName)
             End Sub
-
             Public Sub CreateAFTPanel()
-                CreateReferencePlanes()
+                Dim PartBodyName As String
+                PartBodyName = "AFT PANEL"
 
-                oPart.Pad("AFT")
+                CreateReferencePlanes(4)
 
-                TrimPanel("TOP", 1)
-                TrimPanel("BOTTOM", 0)
-                TrimPanel("REAR", 0)
-                TrimPanel("FRONT", 1)
+                oPart.Pad("AFT", PartBodyName)
+
+                TrimPanel("TOP", 1, PartBodyName)
+                TrimPanel("BOTTOM", 0, PartBodyName)
+                TrimPanel("REAR", 0, PartBodyName)
+                TrimPanel("FRONT", 1, PartBodyName)
             End Sub
-
-
         End Class
 
         Public Class BondedStructure

@@ -13,6 +13,8 @@
         <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Height="Auto" Margin="18,186,0,0" VerticalAlignment="Top" Width="Auto"/>
         <Button x:Name="button2" Content="Create Panel" HorizontalAlignment="Left" Height="55" Margin="237,216,0,0" VerticalAlignment="Top" Width="91"/>
         <Button x:Name="button3" Content="New Product" HorizontalAlignment="Left" Height="34" Margin="111,22,0,0" VerticalAlignment="Top" Width="164"/>
+        <Button x:Name="button4" Content="Clash" HorizontalAlignment="Left" Height="56" Margin="389,199,0,0" VerticalAlignment="Top" Width="105"/>
+        <Button x:Name="button5" Content="Write Notes" HorizontalAlignment="Left" Height="34" Margin="351,22,0,0" VerticalAlignment="Top" Width="119"/>
 
     </Grid>
 </Window>

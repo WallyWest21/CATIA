@@ -3,6 +3,7 @@
     Dim oDrawing As New CATIA_Lib.Cl_CATIA.Drawing
     Dim Panel As New CATIA_Lib.Cl_CATIA.UDF.Panel
     Dim oPart As New CATIA_Lib.Cl_CATIA._3D.oPart
+    Dim CA As New CATIA_Lib.Cl_CATIA.UDF.ClashAnalysis
 
     Private Sub button_Click(sender As Object, e As RoutedEventArgs) Handles button.Click
         'oProduct.test()
@@ -27,6 +28,21 @@
     End Sub
 
     Private Sub button3_Click(sender As Object, e As RoutedEventArgs) Handles button3.Click
-        oProduct.CreateANewProduct("Drawer")
+        'oProduct.CreateANewProduct("Drawer")
+        oProduct.SubInsertANewPart()
+
+    End Sub
+
+    Private Sub button4_Click(sender As Object, e As RoutedEventArgs) Handles button4.Click
+        CA.ActiveProductClash()
+    End Sub
+
+    Private Sub button5_Click(sender As Object, e As RoutedEventArgs) Handles button5.Click
+        Dim Notes As New List(Of String)(New String() {"REFER TO DOCUMENT  B6119GAFP AS THE DESIGN AUTHORITY FOR ALL MATERIAL AND FINISH SPECIFICATIONS. SYMBOL  INDICATES GRAIN DIRECTION.",
+                              "amazon",
+                              "yangtze",
+                              "mississippi",
+                              "yellow"})
+        oDrawing.WriteNotesToDrawing(Notes)
     End Sub
 End Class

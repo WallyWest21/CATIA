@@ -34,6 +34,7 @@
     End Sub
 
     Private Sub button4_Click(sender As Object, e As RoutedEventArgs) Handles button4.Click
+        'CA.ActiveProductClash()
         CA.ActiveProductClash()
     End Sub
 

@@ -20,8 +20,13 @@ Imports ProductStructureTypeLib.CatWorkModeType 'apply design mode
 Imports INFITF
 Imports INFITF.CATMultiSelectionMode
 Imports System.Linq
-Imports SPATypeLib
 
+Imports SPATypeLib 'Clash Analysis
+Imports System.Xml
+Imports System.IO
+
+
+Imports System.Text.RegularExpressions
 
 'Imports PARTITF
 
@@ -108,24 +113,71 @@ Public Class Cl_CATIA
                 Dim products1 As Products
                 products1 = product1.Products
             End Sub
-            Public Function InsertANewPart(Optional oPartNumber As String = "") As ProductDocument
-                Dim ActiveProductDocument As ProductDocument
+            'Public Function InsertANewPart(Optional oPartNumber As String = "") As ProductDocument
+            '    Dim ActiveProductDocument As ProductDocument
 
-                ActiveProductDocument = GetProductDocument()
+            '    ActiveProductDocument = GetProductDocument()
 
-                Dim product1 As Product = ActiveProductDocument.Product
+            '    Dim product1 As Product = ActiveProductDocument.Product
 
-                Dim products1 As Product = product1.Products
+            '    Dim products1 As Product = product1.Products
 
-                Dim product2 As Product = products1.AddNewComponent("Part", oPartNumber)
+            '    Dim product2 As Product = products1.AddNewComponent("Part", oPartNumber)
 
-                Dim partDocument1 As PartDocument
+            '    Dim partDocument1 As PartDocument
+            '    'partDocument1 = ActiveProductDocument.Item("Part3.CATPart")
+
+            '    'Dim part1 As Part
+            '    'part1 = partDocument1.Part
+            '    Return ActiveProductDocument
+
+
+            'End Function
+
+            Public Sub InsertANewPart(PartNumberList As List(Of String))
+                oCATIA = GetCATIA()
+                Dim oDocuments As Documents
+                oDocuments = oCATIA.Documents
+
+                Dim oProductDocument As ProductDocument
+                oProductDocument = oDocuments.Add("Product")
+
+
+                'Dim ActiveProductDocument As ProductDocument
+
+                'ActiveProductDocument = GetProductDocument()
+
+                Dim product1 As Product = oProductDocument.Product
+
+                Dim products1 As Products = product1.Products
+
+                Dim product2 As Product
+
+                For Each oPartNumber In PartNumberList 'http://www.maruf.ca/files/caadoc/CAAScdPstUseCases/CAAPstAddExternalComponent.htm
+
+                    Dim oPartDocument As Document
+                    oPartDocument = oCATIA.Documents.Item(oPartNumber + ".CATPart")
+
+                    'MsgBox(oPartDocument.Name)
+
+                    product2 = products1.AddExternalComponent(oPartDocument)
+
+                    product2.Update()
+
+                    oPartDocument.Close()
+                Next
+
+                product1.PartNumber = "B475101"
+
+                'Dim partDocument1 As PartDocument
                 'partDocument1 = ActiveProductDocument.Item("Part3.CATPart")
 
                 'Dim part1 As Part
                 'part1 = partDocument1.Part
-                Return ActiveProductDocument
-            End Function
+                'Return ActiveProductDocument
+
+
+            End Sub
             Public Sub SubInsertANewPart(Optional oPartNumber As String = "")
                 Dim ActiveProductDocument As ProductDocument
                 ActiveProductDocument = GetProductDocument()
@@ -409,6 +461,27 @@ Public Class Cl_CATIA
                 End If
 
                 GetPartDocument = MyPartDocument
+            End Function
+
+            Public Function CreateANewPartDocumnet(Optional PartNumber As String = "Part") As Document
+                oCATIA = GetCATIA()
+                Dim oDocuments As Documents
+                oDocuments = oCATIA.Documents
+
+                Dim oPartDocument As PartDocument
+                oPartDocument = oDocuments.Add("Part")
+
+                Dim oPart As Part
+                oPart = oPartDocument.Part
+
+                Dim oProduct As Product
+                oProduct = oPartDocument.GetItem(Replace(oPartDocument.Name, ".CATPART", ""))
+                oProduct.PartNumber = PartNumber
+                oProduct.Update()
+
+
+
+                Return oPartDocument
             End Function
             Public Class PartMetaData
                 Dim PartNo, Nomenclature, Description, Parent, JobNo, RT As String
@@ -801,7 +874,8 @@ Public Class Cl_CATIA
                 Dim partDocument1 As PartDocument = GetPartDocument()
                 Dim part1 As Part = partDocument1.Part
                 Dim bodies1 As Bodies = part1.Bodies
-                Dim body1 As Body = bodies1.Item(PartBodyName)
+                Dim body1 As Body = bodies1.Item("PartBody")
+                body1.Name = PartBodyName
                 part1.InWorkObject = body1
 
 
@@ -821,6 +895,30 @@ Public Class Cl_CATIA
         End Class
     End Class
     Public Class Drawing
+
+        Public Function ListOfOpenDrawingDocuments() As List(Of String)
+            ListOfOpenDrawingDocuments = New List(Of String)
+
+            Dim oDocuments As Documents
+            oDocuments = GetCATIA.Documents
+
+            Dim oDocument As Document
+
+            Dim strType As String
+
+            Dim AvailableDocsPartNo() As String
+            For Each oDocument In oDocuments
+                strType = TypeName(oDocument)
+
+                Select Case strType
+                    Case "DrawingDocument"
+
+                        AvailableDocsPartNo = oDocument.Name.Split(".")
+                        ListOfOpenDrawingDocuments.Add(AvailableDocsPartNo(0))
+
+                End Select
+            Next
+        End Function
 
         Public Class cl_PartsList
 
@@ -1732,11 +1830,217 @@ Public Class Cl_CATIA
 
                 End If
             End Sub
+            Public Function ListOfClashes() As List(Of cl_CA_Metadata)
+
+                ListOfClashes = New List(Of cl_CA_Metadata)
+                Dim CA As New cl_CA_Metadata
+
+                Dim di As New DirectoryInfo("C:\Temp\DataBase")
+                ' Get a reference to each file in that directory.
+                Dim fiArr As FileInfo() = di.GetFiles()
+                ' Display the names of the files.
+                Dim fri As FileInfo
+                For Each fri In fiArr
+
+                    CA = New cl_CA_Metadata
+
+                    Try
+
+                        Dim m_xmld As XmlDocument
+                        Dim m_nodelist As XmlNodeList
+                        Dim m_node As XmlNode
+                        'Create the XML Document
+                        m_xmld = New XmlDocument()
+                        'Load the Xml file
+                        m_xmld.Load(fri.FullName)
+                        'Get the list of name nodes 
+
+                        m_node = m_xmld.SelectSingleNode("/InterferenceElement")
+
+                        CA.ProductDocument = m_node.Attributes.GetNamedItem("CATDocument").Value
+                        Dim SplitProductDocument As String()
+                        SplitProductDocument = Split(CA.ProductDocument, "\")
+                        CA.ProductDocument = SplitProductDocument(SplitProductDocument.Count - 1)
+
+                        m_node = m_xmld.SelectSingleNode("/InterferenceElement/Interference")
+                        CA.Status = m_node.Attributes.GetNamedItem("Status").Value
+                        CA.Type = m_node.Attributes.GetNamedItem("ResultType").Value
+
+
+                        m_nodelist = m_xmld.SelectNodes("/InterferenceElement/Interference/Product")
+                        'Loop through the nodes
+                        Dim count As Integer = 1
+                        For Each m_node In m_nodelist
+                            Select Case count
+                                Case 1
+                                    CA.Product1 = m_node.Attributes.GetNamedItem("Alias").Value
+                                Case 2
+                                    CA.Product2 = m_node.Attributes.GetNamedItem("Alias").Value
+                            End Select
+
+                            count += 1
+                        Next
+                        m_node = m_xmld.SelectSingleNode("/InterferenceElement/Interference/GeometricAspect")
+                        CA.Value = m_node.Attributes.GetNamedItem("ExtractOrDistValue").Value
+
+                        m_node = m_xmld.SelectSingleNode("/InterferenceElement/Interference/Picture")
+                        CA.PictureHRef = m_node.Attributes.GetNamedItem("HRef").Value
+
+                    Catch errorVariable As Exception
+                        'Error trapping
+                        MsgBox("Oops! Can not load XML file")
+                        Exit Function
+                    End Try
+                    ListOfClashes.Add(CA)
+                Next fri
+
+                CA = Nothing
+                Return ListOfClashes
+            End Function
+            Public Class cl_CA_Metadata
+
+                Private _Priority As Integer
+                Public Property Priority() As Integer
+                    Get
+                        'Dim rnd As New Random
+                        Select Case Math.Abs((CType(Value, Double)))
+                            Case 0
+                                _Priority = 3
+
+                            Case Is <= 0.125
+                                _Priority = 2
+
+                            Case Is > 0.125
+                                _Priority = 1
+                        End Select
+
+                        Return _Priority
+                    End Get
+                    Set(ByVal value As Integer)
+
+                        _Priority = value
+                    End Set
+                End Property
+                Private _PriorityColor As String
+                Public Property PriorityColor() As String
+                    Get
+                        Select Case Priority
+                            Case 1
+                                _PriorityColor = "Crimson"
+                            Case 2
+                                _PriorityColor = "DarkBlue"
+                            Case 3
+                                _PriorityColor = "DarkGreen"
+                        End Select
+
+                        Return _PriorityColor
+                    End Get
+                    Set(ByVal value As String)
+
+                        _PriorityColor = value
+                    End Set
+                End Property
+                Private _Product1 As String
+                Public Property Product1() As String
+                    Get
+                        Return _Product1
+                    End Get
+                    Set(ByVal value As String)
+                        _Product1 = value
+                    End Set
+                End Property
+
+                Private _Product2 As String
+                Public Property Product2() As String
+                    Get
+                        Return _Product2
+                    End Get
+                    Set(ByVal value As String)
+                        _Product2 = value
+                    End Set
+                End Property
+
+                Private _ProductDocument As String
+                Public Property ProductDocument() As String
+                    Get
+                        Return _ProductDocument
+                    End Get
+                    Set(ByVal value As String)
+                        _ProductDocument = value
+                    End Set
+                End Property
+
+                Private _Type As String
+                Public Property Type() As String
+                    Get
+                        Return _Type
+                    End Get
+                    Set(ByVal value As String)
+                        _Type = value
+                    End Set
+                End Property
+
+                Private _Value As String
+                Public Property Value() As String
+                    Get
+                        Return _Value
+                    End Get
+                    Set(ByVal value As String)
+
+                        'Dim regex As Regex = New Regex("/^\d*\.?\d*$/")
+                        'Dim match As Match = regex.Match(value)
+                        'If match.Success Then
+                        '    Console.WriteLine(match.Value)
+                        'End If
+
+                        value = value.Replace("mm", vbNullString)
+                        _Value = value.Replace("in", vbNullString)
+                    End Set
+                End Property
+
+                Private _Status As String
+                Public Property Status() As String
+                    Get
+                        Return _Status
+                    End Get
+                    Set(ByVal value As String)
+
+                        _Status = value
+                    End Set
+                End Property
+
+                Private _Comment As String
+                Public Property Comment() As String
+                    Get
+                        Return _Comment
+                    End Get
+                    Set(ByVal value As String)
+                        _Comment = value
+                    End Set
+                End Property
+
+                Private _Level As String
+                Public Property Level() As Integer
+                    Get
+                        Return _Level
+                    End Get
+                    Set(ByVal value As Integer)
+                        _Level = value
+                    End Set
+                End Property
+
+                Private _PictureHRef As String
+                Public Property PictureHRef() As String
+                    Get
+                        Return _PictureHRef
+                    End Get
+                    Set(ByVal value As String)
+                        _PictureHRef = value
+                    End Set
+                End Property
+            End Class
         End Class
-
         Public Class Panel
-
-
 
         End Class
         Public Class Drawer
@@ -1765,18 +2069,21 @@ Public Class Cl_CATIA
                 CreateFWDPanel()
                 CreateAFTPanel()
                 CreateBottomPanel()
+
+                oProduct.InsertANewPart(oPartNumber)
             End Sub
             Sub CreateReferencePlanes(count As Integer)
-                CATIADocuments = GetCATIA.Documents
+                'CATIADocuments = GetCATIA.Documents
+                'oProduct.SubInsertANewPart(oPartNumber(count))
 
-                oProduct.SubInsertANewPart(oPartNumber(count))
                 'Threading.Thread.Sleep(2000)
 
 
                 Dim ActivePartDocument As PartDocument
 
                 Dim stroPartnumber As String = oPartNumber(count) + ".CATPart"
-                ActivePartDocument = CATIADocuments.Item(stroPartnumber)
+                'ActivePartDocument = CATIADocuments.Item(stroPartnumber)
+                ActivePartDocument = oPart.CreateANewPartDocumnet(oPartNumber(count))
 
                 FrontPlane = oPart.fctCreatePlanefromOffset("FRONT", oRBL, ActivePartDocument)
                 RearPlane = oPart.fctCreatePlanefromOffset("REAR", oDepth, ActivePartDocument)
@@ -1853,6 +2160,33 @@ Public Class Cl_CATIA
                 TrimPanel("REAR", 0, PartBodyName)
                 TrimPanel("FRONT", 1, PartBodyName)
             End Sub
+        End Class
+
+        Public Class ECNMaker
+            Public Class Drawing_Metadata
+                Public Function ListofSheets() As List(Of DrawingSheet)
+                    Return ListofSheets
+                End Function
+
+                Public Function ListofViews() As List(Of DrawingView)
+                    Return ListofViews()
+                End Function
+                Public Function ListofTables() As List(Of DrawingTable)
+                    Return ListofTables()
+                End Function
+
+                Public Function ListofCallouts() As List(Of DrawingText)
+                    Return ListofCallouts()
+                End Function
+
+                Public Function ListofDimensions() As List(Of DrawingDimension)
+                    Return ListofDimensions()
+                End Function
+                Public Function ListofNotes() As List(Of String)
+                    Return ListofNotes()
+                End Function
+
+            End Class
         End Class
 
         Public Class BondedStructure

@@ -21,8 +21,9 @@
     Private Sub button2_Click(sender As Object, e As RoutedEventArgs) Handles button2.Click
         'Panel.pad()
 
-        Dim Drawer As New CATIA_Lib.Cl_CATIA.UDF.Drawer(50, 40, 15, 20, 25, 14)
-        Drawer.Create()
+        Dim Drawer As New CATIA_Lib.Cl_CATIA.UDF.Drawer(50, 40, 15, 3, 50, 35, 6.35)
+        'Drawer.Create()
+        oPart.HollowCylinder("Bottom", 1, "PartBody", 50)
         'oPart.CreatePlanefromOffset("Bottom")
         'oPart.Pad("Bottom")
     End Sub

@@ -665,6 +665,106 @@ Public Class Cl_CATIA
 
 
             End Sub
+
+            Public Function CreateARing(Diameter As Double, Optional SketchSupport As String = "Bottom", Optional CenterX As Double = 0, Optional CenterY As Double = 0, Optional Thickness As Double = 6.35) As Sketch
+                Dim partDocument1 As PartDocument
+                partDocument1 = GetPartDocument()
+
+                Dim part1 As Part = partDocument1.Part
+                Dim hybridBodies1 As HybridBodies = part1.HybridBodies
+                Dim hybridBody1 As HybridBody = hybridBodies1.Item("Geometrical Set.1")
+                Dim sketches1 As Sketches = hybridBody1.HybridSketches
+                Dim originElements1 As OriginElements = part1.OriginElements
+                Dim reference1 As Reference
+
+
+                Dim sketch1 As Sketch
+                reference1 = hybridBody1.HybridShapes.Item(SketchSupport)
+                sketch1 = sketches1.Add(reference1)
+
+                Dim arrayOfVariantOfDouble1(8)
+                arrayOfVariantOfDouble1(0) = 0#
+                arrayOfVariantOfDouble1(1) = 0#
+                arrayOfVariantOfDouble1(2) = 0#
+                arrayOfVariantOfDouble1(3) = 1.0#
+                arrayOfVariantOfDouble1(4) = 0#
+                arrayOfVariantOfDouble1(5) = 0#
+                arrayOfVariantOfDouble1(6) = 0#
+                arrayOfVariantOfDouble1(7) = 1.0#
+                arrayOfVariantOfDouble1(8) = 0#
+                Dim sketch1Variant
+                sketch1Variant = sketch1
+                sketch1Variant.SetAbsoluteAxisData(arrayOfVariantOfDouble1)
+
+                part1.InWorkObject = sketch1
+
+                Dim factory2D1 As Factory2D = sketch1.OpenEdition()
+
+                Dim geometricElements1 As GeometricElements = sketch1.GeometricElements
+
+                Dim axis2D1 As Axis2D = geometricElements1.Item("AbsoluteAxis")
+                Dim line2D1 As Line2D = axis2D1.GetItem("HDirection")
+                Dim line2D2 As Line2D = axis2D1.GetItem("VDirection")
+                line2D1.ReportName = 1
+                line2D2.ReportName = 2
+
+                Dim circle2D1 As Circle2D
+                circle2D1 = factory2D1.CreateClosedCircle(0#, 0#, Diameter)
+
+                Dim point2D1 As Point2D
+                point2D1 = axis2D1.GetItem("Origin")
+
+                circle2D1.CenterPoint = point2D1
+
+
+                circle2D1.ReportName = 3
+
+
+
+                Dim circle2D2 As Circle2D
+                circle2D2 = factory2D1.CreateClosedCircle(0#, 0#, Diameter + 2 * Thickness)
+
+                circle2D2.CenterPoint = point2D1
+
+                circle2D2.ReportName = 4
+
+                Dim constraints1 As Constraints
+                constraints1 = sketch1.Constraints
+
+                Dim reference2 As Reference
+                reference2 = part1.CreateReferenceFromObject(circle2D1)
+
+                Dim constraint1 As Constraint
+                constraint1 = constraints1.AddMonoEltCst(catCstTypeRadius, reference2)
+
+                constraint1.Mode = catCstModeDrivingDimension
+
+                Dim length1 As KnowledgewareTypeLib.Length
+                length1 = constraint1.Dimension
+
+                length1.Value = Diameter
+
+                Dim reference3 As Reference
+                reference3 = part1.CreateReferenceFromObject(circle2D2)
+
+                Dim constraint2 As Constraint
+                constraint2 = constraints1.AddMonoEltCst(catCstTypeRadius, reference3)
+
+                constraint2.Mode = catCstModeDrivingDimension
+
+                Dim length2 As KnowledgewareTypeLib.Length
+                length2 = constraint2.Dimension
+
+                length2.Value = Diameter + 2 * Thickness
+
+                sketch1.CloseEdition()
+
+                part1.InWorkObject = hybridBody1
+
+                'part1.Update()
+                Return sketch1
+            End Function
+
             Public Function CreateACenteredRectangle(Width As Double, Height As Double, Optional SketchSupport As String = "Bottom", Optional CenterX As Double = 0, Optional CenterY As Double = 0) As Sketch
                 Dim partDocument1 As PartDocument
                 partDocument1 = GetPartDocument()
@@ -870,7 +970,7 @@ Public Class Cl_CATIA
                 Return sketch1
             End Function
 
-            Public Sub Pad(SketchSupport As String, Optional PartBodyName As String = "PartBody", Optional Thickness As Double = 12.7)
+            Public Sub Pad(SketchSupport As String, Orientation As Integer, Optional PartBodyName As String = "PartBody", Optional Thickness As Double = 12.7)
                 Dim partDocument1 As PartDocument = GetPartDocument()
                 Dim part1 As Part = partDocument1.Part
                 Dim bodies1 As Bodies = part1.Bodies
@@ -887,6 +987,32 @@ Public Class Cl_CATIA
 
                 Dim reference2 As Reference = part1.CreateReferenceFromObject(CreateACenteredRectangle(3000, 3000, SketchSupport))
                 pad1.SetProfileElement(reference2)
+
+                pad1.DirectionOrientation = Orientation
+
+                body1.Name = PartBodyName
+                part1.Update()
+            End Sub
+
+            Public Sub HollowCylinder(SketchSupport As String, Orientation As Integer, Optional PartBodyName As String = "PartBody", Optional Thickness As Double = 12.7)
+                Dim partDocument1 As PartDocument = GetPartDocument()
+                Dim part1 As Part = partDocument1.Part
+                Dim bodies1 As Bodies = part1.Bodies
+                Dim body1 As Body = bodies1.Item("PartBody")
+                body1.Name = PartBodyName
+                part1.InWorkObject = body1
+
+
+                Dim shapeFactory1 As PARTITF.ShapeFactory = part1.ShapeFactory
+                Dim reference1 As Reference = part1.CreateReferenceFromName("")
+                Dim pad1 As PARTITF.Pad = shapeFactory1.AddNewPadFromRef(reference1, Thickness)
+                Dim hybridBodies1 As HybridBodies = part1.HybridBodies
+                Dim hybridBody1 As HybridBody = hybridBodies1.Item("Geometrical Set.1")
+
+                Dim reference2 As Reference = part1.CreateReferenceFromObject(CreateARing(300, SketchSupport))
+                pad1.SetProfileElement(reference2)
+
+                pad1.DirectionOrientation = Orientation
 
                 body1.Name = PartBodyName
                 part1.Update()
@@ -2049,17 +2175,18 @@ Public Class Cl_CATIA
             Dim oProduct As New _3D.oProduct
             Dim oFS As Double, oWL As Double, oRBL As Double
             Dim oHeight As Double, oDepth As Double, oWidth As Double
+            Dim oThickness As Double
             Dim FrontPlane As Reference, BottomPlane As Reference, FWDPlane As Reference, AFTPlane As Reference, TopPlane As Reference, RearPlane As Reference
             Dim ActiveProductDocument As ProductDocument, CATIADocuments As Documents
             Dim oPartNumber As New List(Of String)
-            Sub New(FS As Double, WL As Double, RBL As Double, Height As Double, Depth As Double, Width As Double)
+            Sub New(FS As Double, WL As Double, RBL As Double, Height As Double, Depth As Double, Width As Double, Optional Thickness As Double = 12.7)
                 oFS = FS
                 oWL = WL
                 oRBL = RBL
                 oHeight = Height + oWL
                 oDepth = Depth + oRBL
                 oWidth = Width + oFS
-
+                oThickness = Thickness
                 Dim ooPartnumber As New List(Of String)(New String() {"B472402-501", "B472402-503", "B472402-505", "B472402-507", "B472402-509"})
                 oPartNumber = ooPartnumber
             End Sub
@@ -2101,7 +2228,7 @@ Public Class Cl_CATIA
 
                 CreateReferencePlanes(0)
 
-                oPart.Pad("FRONT", PartBodyName)
+                oPart.Pad("FRONT", 1, PartBodyName, oThickness)
 
                 TrimPanel("TOP", 1, PartBodyName)
                 TrimPanel("BOTTOM", 0, PartBodyName)
@@ -2114,7 +2241,7 @@ Public Class Cl_CATIA
 
                 CreateReferencePlanes(1)
 
-                oPart.Pad("REAR", PartBodyName)
+                oPart.Pad("REAR", 0, PartBodyName, oThickness)
 
                 TrimPanel("TOP", 1, PartBodyName)
                 TrimPanel("BOTTOM", 0, PartBodyName)
@@ -2127,7 +2254,7 @@ Public Class Cl_CATIA
 
                 CreateReferencePlanes(2)
 
-                oPart.Pad("BOTTOM", PartBodyName)
+                oPart.Pad("BOTTOM", 0, PartBodyName, oThickness)
 
                 TrimPanel("REAR", 0, PartBodyName)
                 TrimPanel("FRONT", 1, PartBodyName)
@@ -2140,7 +2267,7 @@ Public Class Cl_CATIA
 
                 CreateReferencePlanes(3)
 
-                oPart.Pad("FWD", PartBodyName)
+                oPart.Pad("FWD", 1, PartBodyName, oThickness)
 
                 TrimPanel("TOP", 1, PartBodyName)
                 TrimPanel("BOTTOM", 0, PartBodyName)
@@ -2153,7 +2280,7 @@ Public Class Cl_CATIA
 
                 CreateReferencePlanes(4)
 
-                oPart.Pad("AFT", PartBodyName)
+                oPart.Pad("AFT", 0, PartBodyName, oThickness)
 
                 TrimPanel("TOP", 1, PartBodyName)
                 TrimPanel("BOTTOM", 0, PartBodyName)

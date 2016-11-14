@@ -1,0 +1,5 @@
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\BOM Export test\obj\Debug\BOM Export test.csprojResolveAssemblyReference.cache
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\BOM Export test\obj\Debug\MainWindow.g.cs
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\BOM Export test\obj\Debug\App.g.cs
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\BOM Export test\obj\Debug\BOM Export test_MarkupCompile.cache
+C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\BOM Export test\obj\Debug\BOM Export test_MarkupCompile.lref

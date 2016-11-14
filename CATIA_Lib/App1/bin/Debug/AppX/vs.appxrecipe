@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Machine>DIGITAL-PC</Machine>
+    <WindowsUser>Al</WindowsUser>
+    <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
+    <TargetOsVersion>6.3</TargetOsVersion>
+    <TargetOsDescription>Windows 8.1</TargetOsDescription>
+    <SolutionConfiguration>Debug|AnyCPU</SolutionConfiguration>
+    <PackageArchitecture>neutral</PackageArchitecture>
+    <PackageIdentityName>a5b101d5-fdd3-41dc-aaf8-f1a1346ae35c</PackageIdentityName>
+    <IntermediateOutputPath>C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\obj\Debug\</IntermediateOutputPath>
+    <RegisteredManifestChecksum>582DF5B909DCE44812279F22A0876BF10823E5A4A265414E628DAB0173F93998</RegisteredManifestChecksum>
+    <RegisteredPackageMoniker>a5b101d5-fdd3-41dc-aaf8-f1a1346ae35c_1.0.0.0_neutral__e99vbfg2mhg2c</RegisteredPackageMoniker>
+    <RegisteredUserModeAppID>a5b101d5-fdd3-41dc-aaf8-f1a1346ae35c_e99vbfg2mhg2c!App</RegisteredUserModeAppID>
+    <RegisteredPackageID>a5b101d5-fdd3-41dc-aaf8-f1a1346ae35c</RegisteredPackageID>
+    <RegisteredPackagePublisher>CN=Al</RegisteredPackagePublisher>
+    <RegisteredVersion>1.0.0.0</RegisteredVersion>
+    <JitOptimizationSuppressed>True</JitOptimizationSuppressed>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppXManifest Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\bin\Debug\AppxManifest.xml">
+      <PackagePath>AppxManifest.xml</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+      <Modified>2016-03-24T21:11:34.495</Modified>
+    </AppXManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\bin\Debug\App1.exe">
+      <PackagePath>App1.exe</PackagePath>
+      <Modified>2016-04-06T15:41:13.264</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\Assets\Logo.scale-100.png">
+      <PackagePath>Assets\Logo.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+      <Modified>2015-07-07T03:05:20.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\Assets\SmallLogo.scale-100.png">
+      <PackagePath>Assets\SmallLogo.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+      <Modified>2015-07-07T03:05:20.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\Assets\SplashScreen.scale-100.png">
+      <PackagePath>Assets\SplashScreen.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+      <Modified>2015-07-07T03:05:20.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\Assets\StoreLogo.scale-100.png">
+      <PackagePath>Assets\StoreLogo.scale-100.png</PackagePath>
+      <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
+      <Modified>2015-07-07T03:05:20.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\bin\Debug\App1.xr.xml">
+      <PackagePath>App1.xr.xml</PackagePath>
+      <Modified>2016-03-01T12:41:01.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\bin\Debug\App.xbf">
+      <PackagePath>App.xbf</PackagePath>
+      <Modified>2016-03-24T21:11:33.632</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\bin\Debug\MainPage.xbf">
+      <PackagePath>MainPage.xbf</PackagePath>
+      <Modified>2016-03-24T21:11:33.632</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Al\Dropbox\Programming\CATIA\CATIA_Lib\App1\bin\Debug\resources.pri">
+      <PackagePath>resources.pri</PackagePath>
+      <Modified>2016-03-24T21:11:34.097</Modified>
+    </AppxPackagedFile>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+</Project>

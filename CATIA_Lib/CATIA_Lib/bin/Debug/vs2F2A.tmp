@@ -1,0 +1,32 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+CATIA_Lib
+</name>
+</assembly>
+<members>
+<member name="M:CATIA_Lib.Cl_CATIA.Drawing.PartsList">
+ <summary>
+
+ </summary>
+ <returns></returns>
+</member>
+<member name="T:CATIA_Lib.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:CATIA_Lib.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:CATIA_Lib.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+</members>
+</doc>

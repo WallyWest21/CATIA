@@ -13,9 +13,9 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyCompany("Microsoft")> 
 <Assembly: AssemblyProduct("CATIA")> 
 <Assembly: AssemblyCopyright("Copyright © Microsoft 2015")> 
-<Assembly: AssemblyTrademark("")> 
+<Assembly: AssemblyTrademark("")>
 
-<Assembly: ComVisible(False)>
+<Assembly: ComVisible(True)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
 <Assembly: Guid("7c1bd9d0-96a1-451f-8cb4-7d8f98cb19f5")> 

@@ -1,0 +1,78 @@
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.CATANNOTITF.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.DRAFTINGITF.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.INFITF.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.KnowledgewareTypeLib.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.LAYOUT2DITF.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.MECMOD.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.PARTITF.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.ProductStructureClientIDL.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\Interop.ProductStructureTypeLib.dll
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\CATIA.vbproj.ResolveComReference.cache
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\CATIA.Resources.resources
+C:\Users\p922001\AppData\Local\Temporary Projects\CATIA\obj\Debug\CATIA.vbproj.GenerateResource.Cache
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.AnnotationTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CAT3DXMLPLAYERTLB.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATABFInterfacesTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATAGTIDLTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATANNOTITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATAssemblyTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATEngConnectionIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATHumanPackaging.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATIA_APP_ITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATKinMechanismIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATMaterialTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATOpnsInertiaIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATOpnsMeasureIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATOpnsSectionIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATOpnsVocIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATSimPLMIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATSmInterfacesTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATSrsIDLTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATStk.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DELArcWeld.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DELBehavior.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DELOlp.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DELResourceBuilderIDLTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DNBDevice.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DNBFittingIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DNBIgpTagPath.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DNBIgripSim.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DNBPPRNavSettingsTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DNBResourceLayout.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DNBSpotWelding.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DPCOperationsTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DPMSettings.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.DRAFTINGITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.ElectricalTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.FCBITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.GenKwe.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.HybridShapeTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.INFITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.KnowledgewareTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.LAYOUT2DITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.MECMOD.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.PARTITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.PCBITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.PLMModelerBaseIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.PROCESSITF.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.ProductStructureClientIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.ProductStructureTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.RefGeomTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.SDDTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.SdeTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.SFDTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.SimulationTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.SRMTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.StrTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.SWKHumanModelingItf.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\CATIA.vbproj.ResolveComReference.cache
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\CATIA.Resources.resources
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\CATIA.vbproj.GenerateResource.Cache
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATStrSettingsTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATTooling.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.NavigatorTypeLib.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.PPR.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.PWCUtilities.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.VPMEditorContextIDL.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.CATCompositesMat.dll
+C:\Users\p922001\Documents\Visual Studio 2012\Projects\CATIA\CATIA\obj\Debug\Interop.Office.dll

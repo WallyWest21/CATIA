@@ -66,6 +66,16 @@ Public Class Cl_CATIA
         'Return True
 
     End Function
+    Shared Sub ActivateCATIAWindow()
+        'oCATIA.ActiveDocument.Activate()
+        'oCATIA.ActiveWindow.WindowState = CatWindowState.catWindowStateMaximized
+        Dim ApplicationName As String = (oCATIA.Caption)
+
+        Dim ActiveWindowCaption As String = (oCATIA.ActiveWindow.Caption)
+        AppActivate(ApplicationName & " - [" & ActiveWindowCaption & "]") 'https://msdn.microsoft.com/en-us/library/dyz95fhy(v=vs.90).aspx
+
+    End Sub
+
     Public Class _3D
         Public Class oProduct
 
@@ -228,6 +238,7 @@ Public Class Cl_CATIA
                 Dim ActiveProductDocument As ProductDocument, ActiveProduct As Product
 
                 ActiveProductDocument = GetProductDocument()
+                ActivateCATIAWindow()
 
                 Dim What(0) 'As Object
                 What(0) = "Product"
@@ -1279,8 +1290,11 @@ Public Class Cl_CATIA
             oCATIA = GetCATIA()
             ActiveDrawingDocument = GetDrawingDocument()
 
+            ActivateCATIAWindow()
+
             SelectedTable = ActiveDrawingDocument.Selection
             SelectedTable.Clear()
+
 
             What(0) = "DrawingTable"
             e = SelectedTable.SelectElement3(What, "Select a DrawingTable", True, CATMultiSelectionMode.CATMultiSelTriggWhenUserValidatesSelection, False)
@@ -1893,32 +1907,14 @@ Public Class Cl_CATIA
 
                 GetCATIA.DisplayFileAlerts = False
 
-                Dim Message, Style, Title, Response, MyString
+                Dim productDocument1 As Document = GetProductDocument()
 
-                Message = ("If you have a big Assembly, be aware that this macro will start to put everything in Design Mode. If you don't want, put a omment in front of lines 3 to 12" &
-                        (Chr(13)) & "" & (Chr(13)) & "   Do you want to continue ?")
+                Dim product1 As Product = productDocument1.Product
+                product1.ApplyWorkMode(DESIGN_MODE)
 
-                Style = vbYesNo + vbDefaultButton1   'Define buttons.
+                Dim cClashes As Clashes = GetCATIA.ActiveDocument.Product.GetTechnologicalObject("Clashes")
 
-                Title = "Purpose "
-
-                Response = MsgBox(Message, Style, Title)
-
-                If Response = vbYes Then   ' User chose Yes.
-
-                    MyString = "Yes"
-
-                    Dim productDocument1 As Document
-                    productDocument1 = GetProductDocument()
-
-                    Dim product1 As Product
-                    product1 = productDocument1.Product
-                    product1.ApplyWorkMode(DESIGN_MODE)
-
-                    Dim cClashes As Clashes
-                    cClashes = GetCATIA.ActiveDocument.Product.GetTechnologicalObject("Clashes")
-
-                    Dim oClash As Clash
+                Dim oClash As Clash
                     oClash = cClashes.AddFromSel
                     oClash.ComputationType = CatClashComputationType.catClashComputationTypeInsideOne
                     oClash.InterferenceType = CatClashInterferenceType.catClashInterferenceTypeContact
@@ -1926,35 +1922,87 @@ Public Class Cl_CATIA
                     oClash.Compute()
 
 
-                    'Probably Garbage!!!!!!!!!
-                    '************************************************
-                    Dim cConflicts As Conflicts
-                    cConflicts = oClash.Conflicts
+                'Probably Garbage!!!!!!!!!
+                '************************************************
+                Dim cConflicts As Conflicts = oClash.Conflicts
 
-                    Dim I As Integer
-                    For I = 1 To cConflicts.Count
+                Dim I As Integer
+                For I = 1 To cConflicts.Count
 
-                        Dim oConflict As Conflict
-                        oConflict = cConflicts.Item(I)
+                    Dim oConflict As Conflict
+                    oConflict = cConflicts.Item(I)
 
-                        'MsgBox oConflict.Value
+                    'MsgBox oConflict.Value
 
-                        If (oConflict.Type = CatConflictType.catConflictTypeClash) Then
+                    If (oConflict.Type = CatConflictType.catConflictTypeClash) Then
 
-                            If (oConflict.Value <> 0) Then
+                        If (oConflict.Value <> 0) Then
 
-                                oConflict.Status = CatConflictStatus.catConflictStatusRelevant
-                                Dim dFilterValue
-                                oConflict.Comment = "Automatic filter : penetration less than " & dFilterValue
-                            End If
+                            oConflict.Status = CatConflictStatus.catConflictStatusRelevant
+                            Dim dFilterValue
+                            oConflict.Comment = "Automatic filter : penetration less than " & dFilterValue
                         End If
+                    End If
 
-                    Next
+                Next
 
-                    '**********************************************
-                    oClash.Export(CatClashExportType.CatClashExportTypeXMLResultOnly, "c:\Temp\sample.xml")
+                '**********************************************
+                oClash.Export(CatClashExportType.CatClashExportTypeXMLResultOnly, "c:\Temp\sample.xml")
 
-                End If
+                'End If
+            End Sub
+            Public Sub OneAgainstAll()
+
+                Dim iClashes As Clashes
+                Dim iClash As Clash
+                Dim iGroups As NavigatorTypeLib.Groups
+                Dim iGroup As NavigatorTypeLib.Group
+                Dim iProd As Product = GetProductDocument.Product
+
+                iGroups = iProd.GetTechnologicalObject("Groups")
+                iGroup = iGroups.Add
+
+                Dim clashProd As Product = iProd.Products.Item(2)
+
+                iGroup.AddExplicit(clashProd)
+
+                iClashes = iProd.GetTechnologicalObject("Clashes")
+                iClash = iClashes.Add
+                iClash.ComputationType = CatClashComputationType.catClashComputationTypeAgainstAll
+                iClash.InterferenceType = CatClashInterferenceType.catClashInterferenceTypeClearance
+
+                'iClash.Clearance = 0.25 * conv
+
+                iClash.FirstGroup = iGroup
+                iClash.Compute()
+
+                Dim cConflicts As Conflicts = iClash.Conflicts
+
+                Dim I As Integer
+                For I = 1 To cConflicts.Count
+
+                    Dim oConflict As Conflict
+                    oConflict = cConflicts.Item(I)
+
+                    'MsgBox oConflict.Value
+
+                    If (oConflict.Type = CatConflictType.catConflictTypeClash) Then
+
+                        If (oConflict.Value <> 0) Then
+
+                            oConflict.Status = CatConflictStatus.catConflictStatusRelevant
+                            Dim dFilterValue
+                            oConflict.Comment = "Automatic filter : penetration less than " & dFilterValue
+                        End If
+                    End If
+
+                Next
+
+                '**********************************************
+                iClash.Export(CatClashExportType.CatClashExportTypeXMLResultOnly, "c:\Temp\sample.xml")
+
+
+
             End Sub
             Public Function ListOfClashes() As List(Of cl_CA_Metadata)
 
@@ -1966,6 +2014,7 @@ Public Class Cl_CATIA
                 Dim fiArr As FileInfo() = di.GetFiles()
                 ' Display the names of the files.
                 Dim fri As FileInfo
+
                 For Each fri In fiArr
 
                     CA = New cl_CA_Metadata
@@ -1980,7 +2029,7 @@ Public Class Cl_CATIA
                         'Load the Xml file
                         m_xmld.Load(fri.FullName)
                         'Get the list of name nodes 
-
+                        Console.WriteLine(fri.FullName)
                         m_node = m_xmld.SelectSingleNode("/InterferenceElement")
 
                         CA.ProductDocument = m_node.Attributes.GetNamedItem("CATDocument").Value
@@ -2007,7 +2056,7 @@ Public Class Cl_CATIA
                             count += 1
                         Next
                         m_node = m_xmld.SelectSingleNode("/InterferenceElement/Interference/GeometricAspect")
-                        CA.Value = m_node.Attributes.GetNamedItem("ExtractOrDistValue").Value
+                        CA.myValue = m_node.Attributes.GetNamedItem("ExtractOrDistValue").Value
 
                         m_node = m_xmld.SelectSingleNode("/InterferenceElement/Interference/Picture")
                         CA.PictureHRef = m_node.Attributes.GetNamedItem("HRef").Value
@@ -2029,7 +2078,7 @@ Public Class Cl_CATIA
                 Public Property Priority() As Integer
                     Get
                         'Dim rnd As New Random
-                        Select Case Math.Abs((CType(Value, Double)))
+                        Select Case Math.Abs((CType(myValue, Double)))
                             Case 0
                                 _Priority = 3
 
@@ -2107,7 +2156,7 @@ Public Class Cl_CATIA
                 End Property
 
                 Private _Value As String
-                Public Property Value() As String
+                Public Property myValue() As String
                     Get
                         Return _Value
                     End Get
@@ -2161,7 +2210,10 @@ Public Class Cl_CATIA
                         Return _PictureHRef
                     End Get
                     Set(ByVal value As String)
-                        _PictureHRef = value
+                        value = value.Replace("..", vbNullString)
+                        value = value.Replace("/", "\")
+
+                        _PictureHRef = "C:\Temp" + value
                     End Set
                 End Property
             End Class

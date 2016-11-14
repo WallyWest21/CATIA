@@ -1,0 +1,23 @@
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export.vbprojResolveAssemblyReference.cache
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\Interop.INFITF.dll
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\Interop.KnowledgewareTypeLib.dll
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\Interop.ProductStructureTypeLib.dll
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export.vbproj.ResolveComReference.cache
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\MainWindow.g.vb
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\Application.g.vb
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export_MarkupCompile.cache
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export_MarkupCompile.lref
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export.xml
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\bin\Debug\BOM Export.exe.config
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\bin\Debug\BOM Export.exe
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\bin\Debug\BOM Export.pdb
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\bin\Debug\BOM Export.xml
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\bin\Debug\CATIA.dll
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\bin\Debug\CATIA.pdb
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\bin\Debug\CATIA.xml
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\MainWindow.baml
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export.g.resources
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM_Export.Resources.resources
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export.vbproj.GenerateResource.Cache
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export.exe
+C:\Users\Al\Dropbox\Programming\CATIA\BOM Export\obj\Debug\BOM Export.pdb
